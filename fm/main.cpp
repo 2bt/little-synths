@@ -7,10 +7,10 @@
 using namespace std;
 
 
-enum { MIXRATE = 44100 };
-
-int note = -12;
-double pitch;
+enum {
+	POLYPHONY = 5,
+	MIXRATE = 44100
+};
 
 
 struct Operator {
@@ -35,7 +35,6 @@ struct Operator {
 		case 0:
 			env *= settings.release;
 			break;
-
 		case 1:
 			env += settings.attack;
 			if (env >= 1) state = 2;
@@ -48,22 +47,22 @@ struct Operator {
 	}
 
 	double amp(double shift=0) {
+		// bottle neck right here
+		// sin is expensive
 		return sin((phase + shift) * 2 * M_PI) * env * settings.volume;
 	}
-
 };
 
 
-
+// change numbers as you please
 Operator::Settings opSet1 = { 0.1,    0.999997, 0.99992, 1,   1 };
-Operator::Settings opSet2 = { 0.01,  0.99999,  0.9999, 0.3,   3 };
-Operator::Settings opSet3 = { 0.0001, 0.9999,  0.999, 1,      5 };
+Operator::Settings opSet2 = { 0.01,   0.99999,  0.9999,  0.3, 3 };
+Operator::Settings opSet3 = { 0.0001, 0.9999,   0.999,   1,   5 };
 
 
 struct Voice {
 	int note;
 	double pitch;
-
 	double buffer[2];
 
 	Operator op1 = {opSet1};
@@ -81,7 +80,7 @@ struct Voice {
 
 	void play(int n) {
 		note = n;
-		pitch = 440.0 / MIXRATE * pow(2, note / 12.0);
+		pitch = 440.0 / MIXRATE * pow(2, (note - 69) / 12.0);
 		op1.state = op2.state = op3.state = 1;
 		op1.env = op2.env = op3.env = 0;
 	}
@@ -93,11 +92,10 @@ struct Voice {
 				op2.env + (op2.state != 0) +
 				op3.env + (op3.state != 0);
 	}
-
 };
 
 
-vector<Voice> voices(8);
+vector<Voice> voices(POLYPHONY);
 
 void playNote(int note) {
 	Voice* best = &voices[0];
@@ -121,19 +119,16 @@ void releaseNote(int note) {
 
 void audio_callback(void* userdata, unsigned char* stream, int len) {
 
-
 	KeyboardEvent e;
 	while(keyboard_poll(&e)) {
 		if(e.x >= 95) continue;
-		if(e.type == 0x90) playNote(e.x - 62);
-		else if(e.type == 0x80) releaseNote(e.x - 62);
+		if(e.type == 0x90) playNote(e.x);
+		else if(e.type == 0x80) releaseNote(e.x);
 	}
-
 
 
 	short* buffer = (short*) stream;
 	for (int i = 0; i < len / 4; i++, buffer += 2) {
-
 
 		double b[2] = {0, 0};
 		for (Voice& v : voices) {
@@ -145,7 +140,6 @@ void audio_callback(void* userdata, unsigned char* stream, int len) {
 		buffer[0] = b[0] * 6000;
 		buffer[1] = b[1] * 6000;
 	}
-
 }
 
 
