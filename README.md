@@ -9,3 +9,6 @@ A software synthesizer playing the tetris melody.
 ### flatsynth ###
 This synth was originally written for windows, partially even in assembly.
 The resulting binary file was less than 2kb in size.
+
+### fm ###
+Plug in your favourite midi keyboard and start playing.
