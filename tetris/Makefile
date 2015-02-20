@@ -1,2 +1,4 @@
 all:
-	gcc little_synth.c -o little_synth -O2 -lpulse-simple
+	gcc main.c -o tetris -O2 -lpulse-simple -lm
+clean:
+	rm -f tetris
