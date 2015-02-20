@@ -7,16 +7,32 @@
 using namespace std;
 
 
+
 enum {
-	POLYPHONY = 5,
-	MIXRATE = 44100
+	POLYPHONY = 8,
+	TABLE_SIZE = 1024,
+	MIXRATE = 44100,
 };
+
+double sin_table[TABLE_SIZE];
+
+void init_sin_table() {
+	for (int i = 0; i < TABLE_SIZE; i++)
+		sin_table[i] = sin(i * 2 * M_PI / TABLE_SIZE);
+}
+
+double sin_lookup(double x) {
+	return sin_table[((unsigned int)(x * TABLE_SIZE)) % TABLE_SIZE];
+}
+
+
 
 
 struct Operator {
 	struct Settings {
 		double attack;
 		double decay;
+		double sustain;
 		double release;
 		double volume;
 		double tuning;
@@ -37,28 +53,35 @@ struct Operator {
 			break;
 		case 1:
 			env += settings.attack;
-			if (env >= 1) state = 2;
+			if (env >= 1) {
+				env = 1;
+				state = 2;
+			}
 			break;
 		case 2:
-			env *= settings.decay;
+			env = settings.sustain + (env - settings.sustain) * settings.decay;
 			break;
 
 		}
 	}
 
 	double amp(double shift=0) {
-		// bottle neck right here
-		// sin is expensive
-		return sin((phase + shift) * 2 * M_PI) * env * settings.volume;
+		return sin_lookup(phase + shift) * env * settings.volume;
 	}
 };
 
 
-// change numbers as you please
-Operator::Settings opSet1 = { 0.1,    0.999997, 0.99992, 1,   1 };
-Operator::Settings opSet2 = { 0.01,   0.99999,  0.9999,  0.3, 3 };
-Operator::Settings opSet3 = { 0.0001, 0.9999,   0.999,   1,   5 };
 
+// change numbers as you please
+Operator::Settings opSet1 = { 0.02,   0.999997,  0.5, 0.9993, 1,   1 };
+Operator::Settings opSet2 = { 0.002,  0.99999,   0.7, 0.9999, 0.3, 3.01 };
+Operator::Settings opSet3 = { 0.0005, 0.9999,    0.5, 0.9999, 1,   5 };
+
+/*
+Operator::Settings opSet1 = { 0.02,   0.999997,  0.5, 0.9993, 1,   1 };
+Operator::Settings opSet2 = { 0.0005,  0.99999,   0.7, 0.9999, 0.6, 1.01 };
+Operator::Settings opSet3 = { 0.0003, 0.9999,    0.5, 0.9999, 0.4,   2.99 };
+*/
 
 struct Voice {
 	int note;
@@ -73,9 +96,12 @@ struct Voice {
 		op1.tick(pitch);
 		op2.tick(pitch);
 		op3.tick(pitch);
-
+/*
+		buffer[0] = op1.amp(op2.amp(0.00) + op3.amp(0.00) + 0.00);
+		buffer[1] = op1.amp(op2.amp(0.25) + op3.amp(0.125) + 0.25);
+*/
 		buffer[0] = op1.amp(op2.amp(op3.amp(0.00) + 0.00) + 0.00);
-		buffer[1] = op1.amp(op2.amp(op3.amp(0.25) + 0.25) + 0.25);
+		buffer[1] = op1.amp(op2.amp(op3.amp(0.125) + 0.25) + 0.25);
 	}
 
 	void play(int n) {
@@ -137,13 +163,15 @@ void audio_callback(void* userdata, unsigned char* stream, int len) {
 			b[1] += v.buffer[1];
 		}
 
-		buffer[0] = b[0] * 6000;
-		buffer[1] = b[1] * 6000;
+		buffer[0] = b[0] * 3000;
+		buffer[1] = b[1] * 3000;
 	}
 }
 
 
 int main(int argc, char **argv) {
+	init_sin_table();
+
 
 	keyboard_init();
 	static SDL_AudioSpec spec = { MIXRATE, AUDIO_S16SYS,
