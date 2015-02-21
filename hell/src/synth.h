@@ -10,7 +10,7 @@ enum {
 	NUM_OSCS = 3,
 	NUM_ENVS = 2,
 	NUM_LFOS = 2,
-	NUM_CORDS = 16,
+	NUM_CORDS = 32,
 };
 
 
@@ -61,15 +61,6 @@ typedef struct {
 	VoicePatch	voice;
 	PatchCord	cords[NUM_CORDS];
 } SynthPatch;
-
-
-enum {
-	SRC_VELOCITY,
-	SRC_ENV1,
-	SRC_ENV2,
-	SRC_LFO1,
-	SRC_LFO2,
-};
 
 
 void synth_init(SynthPatch* patch);

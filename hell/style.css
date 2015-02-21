@@ -33,12 +33,21 @@ QPushButton {
 	padding: 0px 3px;
 }
 QPushButton:checked, QPushButton:pressed {
-	background: #559;
+	background: #F09400;
 }
 
-QPushButton[class="target"] {
-	width: 130px;
+QPushButton[class="radio"] {
+	width: 20px;
 
+}
+QPushButton[class="power"] {
+	width: 20px;
+}
+QPushButton[class="source"] {
+	width: 60px;
+}
+QPushButton[class="target"] {
+	width: 120px;
 }
 
 
