@@ -86,6 +86,14 @@ static const Header headers[] = {
 	{}
 };
 
+const char* get_header_name(int i) {
+	const char* n;
+	for (auto& header : headers) {
+		if (header.pos > i) return n;
+		n = header.name;
+	}
+	return n;
+};
 
 const char* src_params[] = {
 	"Velocity",
@@ -165,7 +173,7 @@ public:
 			// target menu
 			if (param.is_target) {
 				auto action = target_menu->addAction((std::string(header_name) + " - " + param.name).c_str());
-				action->setProperty("i", i);
+				action->setProperty("index", i);
 			}
 
 			auto layout = new QHBoxLayout();
@@ -242,14 +250,14 @@ public:
 		auto layout = new QVBoxLayout();
 		for (int i = 0; i < NUM_CORDS; i++) {
 
+			PatchCord* cord = &patch.cords[i];
 
 			auto power_button = new QPushButton("");
 			power_button->setProperty("class", "power");
 			power_button->setProperty("slot", i);
 			power_button->setCheckable(true);
-			bool checked = patch.cords[i].enabled;
+			bool checked = cord->enabled;
 			power_button->setChecked(checked);
-			power_button->setText(checked ? "On" : "Off");
 			connect(power_button, SIGNAL(toggled(bool)), this, SLOT(powerButtonToggled(bool)));
 
 
@@ -257,6 +265,7 @@ public:
 			source_button->setProperty("class", "source");
 			source_button->setProperty("slot", i);
 			source_button->setMenu(source_menu);
+			source_button->setText(src_params[cord->src_index]);
 			connect(source_button, SIGNAL(pressed()), this, SLOT(sourceButtonPressed()));
 
 
@@ -264,6 +273,9 @@ public:
 			target_button->setProperty("class", "target");
 			target_button->setProperty("slot", i);
 			target_button->setMenu(target_menu);
+
+			auto text = std::string(get_header_name(cord->trg_index)) + " - " + params[cord->trg_index].name;
+			target_button->setText(text.c_str());
 			connect(target_button, SIGNAL(pressed()), this, SLOT(targetButtonPressed()));
 
 
@@ -271,7 +283,6 @@ public:
 			row->addWidget(power_button);
 			row->addWidget(source_button);
 			row->addWidget(target_button);
-
 
 
 			auto slider = new QSlider(Qt::Horizontal);
@@ -282,7 +293,7 @@ public:
 			auto display = new QLabel("0");
 			display->setProperty("class", "display");
 			slider->setProperty("display", QVariant::fromValue<QObject*>(display));
-			slider->setValue(patch.cords[i].gain * 100);
+			slider->setValue(cord->gain * 100);
 
 			row->addWidget(display);
 			row->addWidget(slider);
@@ -334,29 +345,36 @@ private slots:
 		display->setText(str);
 	}
 	void targetSelected(QAction* a) {
-		target_index = a->property("i").toInt();
+		target_index = a->property("index").toInt();
 		target_name = a->text();
 	}
 	void targetButtonPressed() {
-		auto button = dynamic_cast<QPushButton*>(sender());
-		button->setText(target_name);
-
-		int slot = button->property("slot").toInt();
-		patch.cords[slot].trg_index = target_index;
+		if (target_name != "") {
+			auto button = dynamic_cast<QPushButton*>(sender());
+			button->setText(target_name);
+			int slot = button->property("slot").toInt();
+			patch.cords[slot].trg_index = target_index;
+			target_name = "";
+		}
 	}
 	void sourceSelected(QAction* a) {
-		source_index = a->property("i").toInt();
+		source_index = a->property("index").toInt();
 		source_name = a->text();
 	}
 	void sourceButtonPressed() {
-		auto button = dynamic_cast<QPushButton*>(sender());
-		button->setText(source_name);
-		int slot = button->property("slot").toInt();
-		patch.cords[slot].src_index = source_index;
+		if (source_name != "") {
+			auto button = dynamic_cast<QPushButton*>(sender());
+			button->setText(source_name);
+			int slot = button->property("slot").toInt();
+			patch.cords[slot].src_index = source_index;
+
+			printf("[%d:%s] = %d\n", slot, source_name.toAscii().data(), source_index);
+
+			source_name = "";
+		}
 	}
 	void powerButtonToggled(bool checked) {
 		auto button = dynamic_cast<QPushButton*>(sender());
-		button->setText(checked ? "On" : "Off");
 		int slot = button->property("slot").toInt();
 		patch.cords[slot].enabled = checked;
 	}
