@@ -1,39 +1,68 @@
+QLabel[class="header"] {
+	font-weight: bold;
+	background: #a8a;
+	border-radius: 9px;
+	padding: 2px;
+
+}
+
+QLabel[class="display"] {
+	font-size: 10px;
+	font-family: monospace;
+	min-width: 25px;
+	padding:0;
+	margin:0;
+	qproperty-alignment: 'AlignVCenter | AlignRight';
+}
+
 QSlider::groove:horizontal {
-	border: 1px solid #999999;
-	height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
-	margin: 2px 0;
+	background: #88c;
+	border-radius: 5px;
+	height: 6px;
 }
-
 QSlider::handle:horizontal {
-	background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
-	border: 1px solid #5c5c5c;
-	width: 18px;
-	margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
-	border-radius: 3px;
-}	
-
-QRadioButton::indicator  {
-	width: 13px;
-	height: 13px;
-
-	border-radius: 3px;
-	border: 1px solid #999999;
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+	background: #559;
+	width: 12px;
+	margin: -3px 1px;
 }
 
-QRadioButton::indicator::unchecked  {
+
+QPushButton {
+	border: none;
+	background: #88c;
+	padding: 0px 3px;
+}
+QPushButton:checked, QPushButton:pressed {
+	background: #559;
 }
 
-QRadioButton::indicator:unchecked:pressed  {
-	border: 1px solid #5c5c5c;
-	background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+QPushButton[class="target"] {
+	width: 130px;
+
 }
 
-QRadioButton::indicator::checked  {
-	border: 1px solid #5c5c5c;
-	background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+
+
+QScrollArea {
+	border: 2px solid #999;
 }
 
-QRadioButton::indicator:checked:pressed  {
+
+QScrollBar {
+	background: #88c;
+}
+QScrollBar:vertical {
+	width: 10px;
+}
+QScrollBar:horizontal {
+	height: 10px;
+}
+QScrollBar::handle {
+	background: #559;
+}
+QScrollBar::add-page, QScrollBar::sub-page {
+	background: #88c;
+}
+QScrollBar::add-line, QScrollBar::sub-line {
+	background: #88c;
 }

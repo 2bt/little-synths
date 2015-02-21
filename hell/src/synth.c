@@ -137,7 +137,7 @@ static void voice_mix(Voice* voice, float out[2]) {
 
 	// lfos
 	for (int i = 0; i < NUM_LFOS; i++) {
-		float speed = exp2f(voice->patch.lfos[i].rate * 8 - 4) / MIXRATE;
+		float speed = exp2f(voice->patch.lfos[i].rate * 6 - 2) / MIXRATE;
 		voice->lfos[i].phase += speed;
 		voice->lfos[i].phase -= (int) voice->lfos[i].phase;
 
@@ -166,8 +166,9 @@ void synth_mix(float out[2]) {
 
 		memcpy(&voice->patch, &synth.patch->voice, sizeof(VoicePatch));
 
-		for (int p = 0; p < synth.patch->num_cords; p++) {
+		for (int p = 0; p < NUM_CORDS; p++) {
 			PatchCord* cord = &synth.patch->cords[p];
+			if (!cord->enabled) continue;
 			voice->targets[cord->trg_index] += sources[cord->src_index] * cord->gain;
 		}
 

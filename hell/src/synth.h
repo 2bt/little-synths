@@ -10,6 +10,7 @@ enum {
 	NUM_OSCS = 3,
 	NUM_ENVS = 2,
 	NUM_LFOS = 2,
+	NUM_CORDS = 16,
 };
 
 
@@ -49,6 +50,7 @@ typedef struct {
 
 
 typedef struct {
+	uint8_t		enabled;
 	uint8_t		src_index;
 	uint8_t		trg_index;
 	float		gain;
@@ -57,8 +59,7 @@ typedef struct {
 
 typedef struct {
 	VoicePatch	voice;
-	uint8_t		num_cords;
-	PatchCord	cords[256];
+	PatchCord	cords[NUM_CORDS];
 } SynthPatch;
 
 
