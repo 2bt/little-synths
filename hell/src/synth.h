@@ -6,7 +6,7 @@
 
 enum {
 	MIXRATE = 48000,
-	NUM_VOICES = 8,
+	NUM_VOICES = 16,
 	NUM_OSCS = 3,
 	NUM_ENVS = 2,
 	NUM_LFOS = 2,

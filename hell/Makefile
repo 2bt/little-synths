@@ -3,14 +3,14 @@ CPPSRC	= $(wildcard src/*.cpp)
 OBJ		= $(patsubst src/%.c,bin/%.o,$(CSRC)) $(patsubst src/%.cpp,bin/%.o,$(CPPSRC))
 
 
-QT = $(shell pkg-config --cflags --libs QtGui)
+FLAGS = $(shell pkg-config --cflags --libs QtGui) -flto
 
 
 all: hell
 
 
 hell: $(OBJ) Makefile
-	g++ -Wall -O2 -lSDL -flto -lportmidi $(OBJ) -o hell $(QT)
+	g++ -Wall -O2 -lSDL -lportmidi $(OBJ) -o hell $(FLAGS)
 
 
 moc/main.moc: src/main.cpp
@@ -23,12 +23,12 @@ bin/main.o: moc/main.moc
 
 bin/%.o: src/%.c src/*.h Makefile
 	@mkdir -p bin
-	gcc --std=c99 -O3 -lfo $< -c -o $@ $(QT)
+	gcc --std=c99 -O3 $< -c -o $@ $(FLAGS)
 
 
 bin/%.o: src/%.cpp src/*.h Makefile
 	@mkdir -p bin
-	g++ --std=c++11 -O2 -flto $< -c -o $@ $(QT)
+	g++ --std=c++11 -O2 $< -c -o $@ $(FLAGS)
 
 
 clean:

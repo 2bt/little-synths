@@ -214,16 +214,15 @@ static void synth_note_on(uint8_t note, uint8_t velocity) {
 
 
 static void synth_note_off(uint8_t note) {
-	Voice* voice = NULL;
 	for (int i = 0; i < NUM_VOICES; i++) {
-		voice = &synth.voices[i];
-		if (voice->note == note &&
-			voice->envs[0].state != ENV_OFF &&
-			voice->envs[0].state != ENV_RELEASE) break;
-	}
-	if (!voice) return;
-	for (int i = 0; i < NUM_ENVS; i++) {
-		voice->envs[i].state = ENV_RELEASE;
+		Voice* v = &synth.voices[i];
+		if (v->note == note &&
+			v->envs[0].state != ENV_OFF &&
+			v->envs[0].state != ENV_RELEASE) {
+			for (int i = 0; i < NUM_ENVS; i++) {
+				v->envs[i].state = ENV_RELEASE;
+			}
+		}
 	}
 }
 
