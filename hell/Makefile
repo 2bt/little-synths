@@ -32,4 +32,4 @@ bin/%.o: src/%.cpp src/*.h Makefile
 
 
 clean:
-	rm -rf bin moc hell
+	rm -rf bin moc hell log.wav
