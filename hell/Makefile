@@ -10,7 +10,7 @@ all: hell
 
 
 hell: $(OBJ) Makefile
-	g++ -Wall -O2 -lSDL -lportmidi $(OBJ) -o hell $(FLAGS)
+	g++ -Wall -O2 -lSDL -lportmidi -lsndfile $(OBJ) -o hell $(FLAGS)
 
 
 moc/main.moc: src/main.cpp

@@ -1,10 +1,9 @@
 #include <stdio.h>
-#include <SDL/SDL.h>
-
 #include <string>
 #include <fstream>
 #include <streambuf>
-
+#include <SDL/SDL.h>
+#include <sndfile.h>
 #include <QtGui>
 
 
@@ -395,6 +394,9 @@ private slots:
 #include "../moc/main.moc"
 
 
+SNDFILE* logfile;
+
+
 void audio_callback(void* userdata, unsigned char* stream, int len) {
 	KeyboardEvent event;
 	while (keyboard_poll(&event)) synth_event(event.type, event.a, event.b);
@@ -405,10 +407,15 @@ void audio_callback(void* userdata, unsigned char* stream, int len) {
 		buffer[0] = f[0] * 6000;
 		buffer[1] = f[1] * 6000;
 	}
+
+	sf_writef_short(logfile, (short*) stream, len / 4);
 }
 
 
 int main(int argc, char **argv) {
+	SF_INFO info = { 0, MIXRATE, 2, SF_FORMAT_WAV | SF_FORMAT_PCM_16 };
+	logfile = sf_open("log.wav", SFM_WRITE, &info);
+
 	synth_init(&patch);
 	keyboard_init();
 	static SDL_AudioSpec spec = { MIXRATE, AUDIO_S16SYS,
