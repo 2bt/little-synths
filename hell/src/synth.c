@@ -36,7 +36,6 @@ typedef struct {
 		VoicePatch	patch;
 		float		targets[0];
 	};
-
 } Voice;
 
 
@@ -60,92 +59,87 @@ static void voice_mix(Voice* voice, float out[2]) {
 
 	// oscs
 	for (int i = 0; i < NUM_OSCS; i++) {
-		if (voice->patch.oscs[i].mode == OSC_OFF) continue;
+		Osc* osc = &voice->oscs[i];
+		OscPatch* osc_patch = &voice->patch.oscs[i];
 
-		float pitch = voice->patch.oscs[i].transpose * 12 +
-					  voice->patch.oscs[i].detune +
+		if (osc_patch->mode == OSC_OFF) continue;
+
+		float pitch = osc_patch->transpose * 12 +
+					  osc_patch->detune +
 					  voice->note - 57;
 
-
-		float pp = voice->oscs[i].phase;
-
-		voice->oscs[i].phase += 440.0 * exp2f(pitch / 12.0) / MIXRATE;
-		voice->oscs[i].phase -= (int) voice->oscs[i].phase;
-
-		float p = voice->oscs[i].phase;
-		float pw = voice->patch.oscs[i].pulsewidth;
+		osc->phase += 440.0 * exp2f(pitch / 12.0) / MIXRATE;
+		osc->phase -= (int) osc->phase;
 
 		float f;
-		switch (voice->patch.oscs[i].mode) {
+		switch (osc_patch->mode) {
 		case OSC_PULSE:
 		default:
-//*
-			if (pp <= pw && p > pw)
-				f = (pw - pp) * -1 + (p - pw) * 1;
-			else if (p < pp)
-				f = p * -1 + (1 - pp) * 1;
-			else
-				f = p < pw ? -1 : 1;
-/*/
-			f = voice->oscs[i].phase < voice->patch.oscs[i].pulsewidth ? -1 : 1;
-//*/
+			f = osc->phase < osc_patch->pulsewidth ? -1 : 1;
 			break;
-
-
+		case OSC_TRIANGLE:
+			f = osc->phase < osc_patch->pulsewidth  ?
+				2 / osc_patch->pulsewidth * osc->phase - 1 :
+				2 / (osc_patch->pulsewidth - 1) * (osc->phase - osc_patch->pulsewidth) + 1;
+			break;
 		case OSC_SINE:
-			f = sinf(voice->oscs[i].phase * 2 * M_PI);
+			f = sinf(osc->phase * 2 * M_PI);
 			break;
 		}
-
-		buf += f * voice->patch.oscs[i].volume;
+		buf += f * osc_patch->volume;
 	}
 
 	// envs
 	for (int i = 0; i < NUM_ENVS; i++) {
+		Env* env = &voice->envs[i];
+		EnvPatch* env_patch = &voice->patch.envs[i];
 
-		switch (voice->envs[i].state) {
+		float a = expf(env_patch->attack * -9 - 5);
+		float d = 1 - expf(env_patch->decay * -4 - 7);
+		float r = 1 - expf(env_patch->release * -4 - 7);
+
+		switch (env->state) {
 		case ENV_OFF: continue;
 		case ENV_ATTACK:
-			voice->envs[i].level += 0.01;
-			if (voice->envs[i].level > 1) {
-				voice->envs[i].level = 1;
-				voice->envs[i].state = ENV_HOLD;
+			env->level += a;
+			if (env->level > 1) {
+				env->level = 1;
+				env->state = ENV_HOLD;
 			}
 			break;
 		case ENV_HOLD:
-			voice->envs[i].level = 0.7 + (voice->envs[i].level - 0.7) * 0.9999;
+			env->level = env_patch->sustain + (env->level - env_patch->sustain) * d;
 			break;
 		case ENV_RELEASE:
 		default:
-			voice->envs[i].level *= 0.9997;
-			if (voice->envs[i].level < 0.0005) {
-				voice->envs[i].state = ENV_OFF;
+			env->level *= r;
+			if (env->level < 0.0005) {
+				env->level = 0;
+				env->state = ENV_OFF;
 			}
 			break;
 		}
-
 	}
 
-	//printf("%f\n", voice->envs[0].level);
+	// lfos
+	for (int i = 0; i < NUM_LFOS; i++) {
+		LFOsc* lfo = &voice->lfos[i];
+		LFOscPatch* lfo_patch = &voice->patch.lfos[i];
 
-	buf *= expf((voice->velocity - 1) * 2);
+		float speed = exp2f(lfo_patch->rate * 6 - 2) / MIXRATE;
+		lfo->phase += speed;
+		lfo->phase -= (int) lfo->phase;
+
+		float buf = sinf(lfo->phase * M_PI * 2);
+		lfo->out = buf * lfo_patch->amplify;
+	}
+
+
+	buf *= expf(voice->velocity * 2 - 2);
 	buf *= voice->envs[0].level;
 
 	out[0] += buf * sqrtf(0.5 - voice->patch.panning * 0.5);
 	out[1] += buf * sqrtf(0.5 + voice->patch.panning * 0.5);
-
-
-	// lfos
-	for (int i = 0; i < NUM_LFOS; i++) {
-		float speed = exp2f(voice->patch.lfos[i].rate * 6 - 2) / MIXRATE;
-		voice->lfos[i].phase += speed;
-		voice->lfos[i].phase -= (int) voice->lfos[i].phase;
-
-		float buf = sinf(voice->lfos[i].phase * M_PI * 2);
-		voice->lfos[i].out = buf * voice->patch.lfos[i].amplify;
-	}
-
-
 }
 
 

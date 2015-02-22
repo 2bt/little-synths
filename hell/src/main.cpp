@@ -97,8 +97,8 @@ const char* get_header_name(int i) {
 
 const char* src_params[] = {
 	"Velocity",
-	"Env 1",
-	"Env 2",
+	"ASDR 1",
+	"ASDR 2",
 	"LFO 1",
 	"LFO 2",
 };
@@ -109,15 +109,15 @@ SynthPatch patch = {
 	{
 		0,
 		{
-			{ OSC_PULSE, 0,  0.0, 0.7, 0.5 },
-			{ OSC_PULSE, 0, -0.2, 0.7, 0.5 },
-			{ OSC_PULSE, 0,  0.2, 0.7, 0.5 },
+			{ OSC_TRIANGLE, 0,  0.0, 0.7, 0.1 },
+			{ OSC_TRIANGLE, 0, -0.2, 0.7, 0.2 },
+			{ OSC_TRIANGLE, 0,  0.2, 0.7, 0.3 },
 		}, {
-			{ 1, 1, 0.5, 0.1 },
-			{ 1, 1, 0.5, 0.1 },
+			{ 0.1, 0.5, 0.5, 0.1 },
+			{ 0.7, 1, 1, 1 },
 		}, {
-			{ OSC_SINE, 1, 0.8, 0, 0.25 },
-			{ OSC_SINE, 0, 0.5, 0, 0.5 },
+			{ OSC_SINE, 1, 0.75, 0, 0 },
+			{ OSC_SINE, 0, 0.5,  0, 0.5 },
 		}
 	},
 	{
@@ -125,6 +125,7 @@ SynthPatch patch = {
 		{ 1, SRC_LFO1,   8, 1 },	// vibrato
 		{ 1, SRC_LFO1,  13, 1 },	// vibrato
 		{ 1, SRC_LFO2,   0, 0.5 },
+		{ 1, SRC_ENV2,  28, 0.4 },
 	}
 };
 
@@ -354,6 +355,9 @@ private slots:
 			button->setText(target_name);
 			int slot = button->property("slot").toInt();
 			patch.cords[slot].trg_index = target_index;
+
+			printf("[%d:%s] = %d\n", slot, target_name.toAscii().data(), target_index);
+
 			target_name = "";
 		}
 	}
