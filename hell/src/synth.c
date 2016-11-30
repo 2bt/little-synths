@@ -26,11 +26,19 @@ typedef struct {
 
 
 typedef struct {
+	float	low;
+	float	band;
+	float	high;
+} Filter;
+
+
+typedef struct {
 	uint8_t	note;
 	float	velocity;
 	Osc		oscs[NUM_OSCS];
 	Env		envs[NUM_ENVS];
 	LFOsc	lfos[NUM_LFOS];
+	Filter	filter;
 
 	union {
 		VoicePatch	patch;
@@ -64,7 +72,7 @@ static void voice_mix(Voice* voice, float out[2]) {
 
 		if (osc_patch->mode == OSC_OFF) continue;
 
-		float pitch = osc_patch->transpose * 12 +
+		float pitch = osc_patch->transpose * 10 +
 					  osc_patch->detune +
 					  voice->note - 57;
 
@@ -134,6 +142,19 @@ static void voice_mix(Voice* voice, float out[2]) {
 		lfo->out = buf * lfo_patch->amplify;
 	}
 
+
+	// filter
+
+	Filter* fil = &voice->filter;
+	FilterPatch* fil_patch = &voice->patch.filter;
+	float f = exp2f((fil_patch->cutoff - 1) * 8);
+	float r = 1 - fil_patch->resonance * 0.99;
+
+	fil->low += f * fil->band;
+	fil->high = buf - fil->band * r - fil->low;
+	fil->band += f * fil->high;
+
+	buf = fil->low;
 
 	buf *= expf(voice->velocity * 2 - 2);
 	buf *= voice->envs[0].level;
@@ -210,6 +231,10 @@ static void synth_note_on(uint8_t note, uint8_t velocity) {
 			// TODO: set out?
 		}
 	}
+
+	voice->filter.low = 0;
+	voice->filter.band = 0;
+	voice->filter.high = 0;
 }
 
 

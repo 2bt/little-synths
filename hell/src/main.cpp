@@ -30,19 +30,19 @@ static const Param params[] = {
 	{ "Panning",     Param::SLIDE, -1, 1, true },
 	// osc 1
 	{ "Mode",        Param::RADIO,  0, 3, false, "Off|Tri|Pul|Sin" },
-	{ "Transpose",   Param::SLIDE, -1, 1, true },
+	{ "Transpose",   Param::SLIDE, -2.4, 2.4, true },
 	{ "Detune",      Param::SLIDE, -1, 1, true },
 	{ "Volume",      Param::SLIDE,  0, 1, true },
 	{ "Pulsewidth",  Param::SLIDE,  0, 1, true },
 	// osc 2
 	{ "Mode",        Param::RADIO,  0, 3, false, "Off|Tri|Pul|Sin" },
-	{ "Transpose",   Param::SLIDE, -1, 1, true },
+	{ "Transpose",   Param::SLIDE, -2.4, 2.4, true },
 	{ "Detune",      Param::SLIDE, -1, 1, true },
 	{ "Volume",      Param::SLIDE,  0, 1, true },
 	{ "Pulsewidth",  Param::SLIDE,  0, 1, true },
 	// osc 3
 	{ "Mode",        Param::RADIO,  0, 3, false, "Off|Tri|Pul|Sin" },
-	{ "Transpose",   Param::SLIDE, -1, 1, true },
+	{ "Transpose",   Param::SLIDE, -2.4, 2.4, true },
 	{ "Detune",      Param::SLIDE, -1, 1, true },
 	{ "Volume",      Param::SLIDE,  0, 1, true },
 	{ "Pulsewidth",  Param::SLIDE,  0, 1, true },
@@ -68,7 +68,10 @@ static const Param params[] = {
 	{ "Rate",        Param::SLIDE,  0, 1, true },
 	{ "Phase",       Param::SLIDE,  0, 1, true },
 	{ "Amplify",     Param::SLIDE,  0, 1, true },
-
+	// filter
+	{ "Mode",        Param::RADIO,  0, 2, false, "Low|High|Band" },
+	{ "Resonance",   Param::SLIDE,  0, 1, true },
+	{ "Cutoff",      Param::SLIDE,  0, 1, true },
 };
 
 
@@ -82,6 +85,7 @@ static const Header headers[] = {
 	{ 20, "ASDR 2" },
 	{ 24, "LFO 1" },
 	{ 29, "LFO 2" },
+	{ 34, "Filter" },
 	{}
 };
 
@@ -117,7 +121,8 @@ SynthPatch patch = {
 		}, {
 			{ OSC_SINE, 1, 0.75, 0, 0 },
 			{ OSC_SINE, 0, 0.5,  0, 0.5 },
-		}
+		},
+		{ 0, 0.5, 0.5 }
 	},
 	{
 		{ 1, SRC_LFO1,   3, 1 },	// vibrato
@@ -125,7 +130,7 @@ SynthPatch patch = {
 		{ 1, SRC_LFO1,  13, 1 },	// vibrato
 		{ 1, SRC_LFO2,   0, 0.5 },
 		{ 1, SRC_ENV2,  28, 0.4 },
-	}
+	},
 };
 
 float*		fvalues = (float*)&patch;

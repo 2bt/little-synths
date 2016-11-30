@@ -37,11 +37,10 @@ QPushButton:checked, QPushButton:pressed {
 }
 
 QPushButton[class="radio"] {
-	width: 20px;
-
+	width: 30px;
 }
 QPushButton[class="power"] {
-	width: 20px;
+	width: 8px;
 }
 QPushButton[class="source"] {
 	width: 60px;

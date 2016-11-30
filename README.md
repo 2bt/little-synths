@@ -1,14 +1,15 @@
 little synths
 =============
 
-Some ancient code I wrote a long time ago.
-
-### tetris ###
-A software synthesizer playing the tetris melody.
+### tetris & mario ###
+A software synthesizer playing the tetris/mario melody.
 
 ### flatsynth ###
-This synth was originally written for windows, partially even in assembly.
-The resulting binary file was less than 2kb in size.
+Some ancient code I wrote a long time ago.
+This synth was originally written for windows.
 
 ### fm ###
 Plug in your favourite midi keyboard and start playing.
+
+### hell ###
+Some experimental stuff.

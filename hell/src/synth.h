@@ -42,10 +42,18 @@ typedef struct {
 
 
 typedef struct {
+	uint32_t	mode;
+	float		resonance;
+	float		cutoff;
+} FilterPatch;
+
+
+typedef struct {
 	float		panning;
 	OscPatch	oscs[NUM_OSCS];
 	EnvPatch	envs[NUM_ENVS];
 	LFOscPatch	lfos[NUM_LFOS];
+	FilterPatch	filter;
 } VoicePatch;
 
 

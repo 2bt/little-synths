@@ -119,23 +119,13 @@ float mix() {
 	osc[1] += speed[1];
 	osc[2] += speed[2];
 
-	float t = 0.7;
-	float amp = (
-		(osc[0] > t) +
-		(osc[1] > t) +
-		(osc[2] > t)) * 2 - 1.5;
-/*
-	float t = 0.77;
-	float amp = (
-		(osc[0] > t) |
-		(osc[1] > t) |
-		(osc[2] > t)) * 2 - 1.5;
-*/
 	osc[0] -= (int)osc[0];
 	osc[1] -= (int)osc[1];
 	osc[2] -= (int)osc[2];
 
-	return amp;
+	return ((osc[0] > 0.1) +
+			(osc[1] > 0.1) +
+			(osc[2] > 0.5)) * 2 - 1.5;
 }
 
 void audio_callback(void* userdata, unsigned char* stream, int len) {
