@@ -48,7 +48,7 @@ float			delayBuffer[DELAYLENGTH];
 unsigned int	delayPos;
 
 CHANNEL	channels[NUMCHANNELS] = {
-//	cutoff	reso	filter	volume	wave			detune
+	//	cutoff	reso	filter	volume	wave			detune
 	{	80,		140,	0x49,	0x1a,	PULSE,			20	},		//	bass
 	{	0,		170,	0xb5,	0x79,	SAW | LFO,		5	},
 	{	30,		200,	0x39,	0x16,	SAW,			80	},
