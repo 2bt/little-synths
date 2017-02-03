@@ -55,18 +55,24 @@ struct Voice {
    int   slot;
    char  inst;
    float pitch;
+   float high   = 0;
+   float band   = 0;
+   float low    = 0;
    int   sample = 0;
    State state  = ATTACK;
    float level  = 0;
    float pos    = 0;
    float noise  = 0;
    // default sound
-   float vol    = 1;;
+   float vol    = 1;
    float pw     = 0.5;
-   float pan    = 0;;
+   float pan    = 0;
    float env[4] = { 0.01, 0.5, 0.9998, 0.9994 };
    float vib    = 0;
    float sweep  = 0;
+   bool  filter = false;
+   float reso   = 0.2;
+   float cutoff = 0;
 };
 
 std::array<Voice, POLY>       voices;
@@ -118,29 +124,37 @@ void tick() {
             v.sweep = 0.00003;
          }
          if (v.inst == 'a') {
-            v.pan   = -0.1;
-            v.pw    = row * 0.01;
-            v.sweep = 0.00002;
+            v.filter = true;
+            v.cutoff = -2.5 - sinf(row * 0.1 + 0.9) * 2.5;
+            v.reso   = 0.2;
+            v.pan    = -0.1;
+            v.pw     = row * 0.01;
+            v.sweep  = 0.00002;
          }
          if (v.inst == 'n') {
             v.pan    = rand() / float(RAND_MAX) - 0.5;
             v.env[2] = v.env[3] = 0.99975;
          }
          if (v.inst == 'b') {
-            v.vib    = 0.8;
+            v.filter = true;
+            v.cutoff = 0.7;
+            v.reso   = 0.4;
+            v.vib    = 0.7;
             v.vol    = 0.6;
             v.pw     = 0.1 + rand() / float(RAND_MAX) * 0.2;
             v.env[0] = 0.0005;
             v.env[1] = 0.8;
-            v.env[2] = v.env[3] = 0.99977;
+            v.env[2] = v.env[3] = 0.9998;
             v.pan    = rand() / float(RAND_MAX) - 0.5;
          }
          if (v.inst == '+') {
+            v.vol    = 1.1;
             v.pan    = 0.1;
             v.pitch += 20;
          }
          if (v.inst == '*') {
-            v.pan    = -0.2;
+            v.vol    = 1.1;
+            v.pan    = -0.3;
             v.pitch += 30;
             v.env[1] = 0;
             v.env[2] = v.env[3] = 0.99965;
@@ -155,6 +169,7 @@ void tick() {
 void mix(float* out) {
    if (sample == 0) tick();
    for (Voice& v : voices) {
+      // envelop
       switch (v.state) {
       case ATTACK:
          v.level += v.env[0];
@@ -168,6 +183,7 @@ void mix(float* out) {
          if (v.level <= 0.01) continue;
          break;
       }
+      // waveform
       ++v.sample;
       float pitch = v.pitch;
       pitch += sinf(v.sample * 0.001) * v.vib * (v.sample > 20000);
@@ -202,6 +218,15 @@ void mix(float* out) {
       else {
          amp = v.pos > v.pw ? -1 : 1;
       }
+      // filter
+      if (v.filter) {
+         if (v.inst == 'a') v.cutoff -= 0.0002;
+         float f = exp2f(v.cutoff);
+         v.low += f * v.band;
+         v.high = amp - v.band * v.reso - v.low;
+         v.band += f * v.high;
+         amp = v.low;
+      }
       out[0] += amp * v.level * v.vol * sqrtf(0.5 - v.pan * 0.5);
       out[1] += amp * v.level * v.vol * sqrtf(0.5 + v.pan * 0.5);
    }
@@ -209,7 +234,7 @@ void mix(float* out) {
       sample = 0;
       if (++row >= (int) tune.patterns[tune.table[block][0]].size()) {
          row = 0;
-         //tune.load();
+         tune.load();
          if (++block >= (int) tune.table.size()) {
             block = 0;
          }
@@ -233,5 +258,6 @@ int main() {
    SDL_OpenAudio(&spec, nullptr);
    SDL_PauseAudio(0);
    getchar();
+   SDL_Quit();
    return 0;
 }
