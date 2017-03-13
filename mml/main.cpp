@@ -13,27 +13,17 @@ exit
 
 const char* tune = R"(
 
-ill2> e12def4ec4d4e14def4ec4d4d18 c<g>cdedc<g>e16f8g8
-q4<< ccrr<a+a+rraarrg+g+rr ggrr >ddrrccrr<f>f<g>g
-ipl16q7 <g/>c/e <g+/>c/f <g/>c/e <g+/>c/f <a+/>d/f <a/>c/f <g/>c/e l8<f/a/>c <g/b/>d
+IlL2Q7>e12def4ec4d4e14deA1f4Aec4d4d18c<g>cdA1eAdc<g>e16f8g8
+IbQ4<ccrr<a+a+rraarrg+g+rrggrr>ddrrccrr<f>f<g>g
+IpL16Q7<g/>c/e<g+/>c/f<g/>c/e<g+/>c/f<a+/>d/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 
-ill2> e12def4ec4d4e14def4ec4d4d18 c<g>cdedc<g>e16f8g8
-q4<< ccrr<a+a+rraarrg+g+rr ggrr >ddrrccrr<f>f<g>g
-ipl16q7 <g/>c/e <g+/>c/f <g/>c/e <g+/>c/f <a+/>d/f <a/>c/f <g/>c/e l8<f/a/>c <g/b/>d
+IlL2Q7>e12def4ec4d4e14deA1f4Aec4d4d18c<g>cdA1eAdc<g>e16f8g8
+IbQ4<ccrr<a+a+rraarrg+g+rrggrr>ddrrccrr<f>f<g>g
+IpL16Q7<g/>c/e<g+/>c/f<g/>c/e<g+/>c/f<a+/>d/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 
-r
-
-q4l2gga+gggfggga+>drg<gf>
-l4>crcrcrcc
-l4>d+rdrfrd+g2f2
-
-q4l1o4{cccg2ccf2ccd+2cd2}3cccg2ccf2ccd+2ca+>c
-o2l4q3{c>ccc<}2q7l2{c<c>>c<c<c>ca+>c<}2
-
-o2l4q3{c>ccc<}2q7l2{c<c>>c<c<c>ca+>c<}2
-q8r>c<d6d+2crdd+f6d+1d1d+6d1c1d8<a+>c
-
-r
+IlL2Q7>g10>A1dA<b>c6<b3r1b4a3r1A1a3Ag3ad+1d1c6r8d+8e16g+4a4b8b1a1g8arg4a
+IbL2Q7O2ee>e<ee>e<e>e<<aa>a<aa>a<a>add>d<dd>d<d>d<<a+a+>a+<a+a+>a+<a+>a+<aa>a<aa>a<a>a<g+g+>g+<g+g+>g+<g+>g+<gg>g<gg>g<g>g<gg>g<gg>g<g>g
+IpL16Q7<b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
 
 )";
 
@@ -43,7 +33,7 @@ enum {
    SAMPLES_PER_ROW = 5500,
 };
 enum State { OFF, HOLD, ATTACK };
-enum Wave { PULSE, SAW };
+enum Wave { PULSE, SAW, TRI };
 struct Instrument {
    float vol;
    Wave  wave;
@@ -62,20 +52,30 @@ struct Voice : Instrument {
    int   inst;
    float pitch;
    int   length;
+   int   arp_tick = 0;
+   int   arp_env = 0;
 };
+
+
+
 
 std::array<Voice, POLY> voices;
 std::array<Instrument, 128> instruments;
-
+std::vector<int> envelops[] = {
+   { 0, 0 },
+   { -1, 0, 1 },
+//   { 0, 0, 0, 0, 12, 12, 12, 12, 0 },
+};
 void init_voices() {
    for (Voice& v : voices) v.state = OFF;
-   instruments[ 0 ] = { 1, PULSE, 0.5, 0, { 0.01, 0.5, 0.9998, 0.9992 }, 0, 0 };
-   instruments['l'] = { 0.9, PULSE, 0.5, 0.1, { 0.01, 0.5, 0.9998, 0.9992 }, 0, 0 };
-   instruments['p'] = { 0.4, PULSE, 0.3, 0, { 0.001, 0.8, 0.9998, 0.9999 }, 0.2, 0.05 };
+   instruments[ 0 ] = { 1,   PULSE, 0.5, 0,   { 0.01,  0.5, 0.9999,   0.9992 }, 0,    0 };
+   instruments['l'] = { 0.8, PULSE, 0.2, 0.1, { 0.01,  0.3, 0.9999,   0.9992 }, 0.15, 0.09 };
+   instruments['p'] = { 0.3, PULSE, 0.3,-0.3, { 0.001, 0.0, 0.999992, 0.9999 }, 0.3,  0.05 };
+   instruments['b'] = { 1.4, TRI,   0.5, 0,   { 0.01,  0.5, 0.9998,   0.9992 }, 0,    0 };
 }
 
 
-void play_voice(int inst, int note, int length) {
+void play_voice(int inst, int note, int length, int arp_env) {
    Voice* v = nullptr;
    for (Voice& w : voices) {
       if (!v || w.state < v->state ||
@@ -85,9 +85,14 @@ void play_voice(int inst, int note, int length) {
    }
    *v = Voice();
    ((Instrument&)*v) = instruments[inst];
-   v->inst   = inst;
-   v->pitch  = note;
-   v->length = length;
+   v->inst    = inst;
+   v->pitch   = note;
+   v->length  = length;
+   v->arp_env = arp_env;
+   if (inst == 'p') {
+      v->pan += rand() / (float) RAND_MAX * 0.2 - 0.1;
+      v->sweep += rand() / (float) RAND_MAX * 0.02 - 0.01;
+   }
 }
 
 
@@ -98,31 +103,29 @@ public:
       if (--wait > 0) return true;
       for (;;) {
          while (memchr(" \t", *pos, 2)) ++pos;
-         if (*pos == '{') {
-            ++pos;
-            loop = 0;
+         if (*pos == '[') {
+            loop_pos = ++pos;
+            loop_count = 0;
             continue;
          }
-         if (*pos == '}') {
-            assert(loop != -1);
+         if (*pos == ']') {
+            assert(loop_pos);
             ++pos;
-            if (++loop < strtol(pos, (char**) &pos, 10)) {
-               while (pos[-1] != '{') --pos;
-            }
-            else loop = -1;
+            if (++loop_count < strtol(pos, (char**) &pos, 10)) pos = loop_pos;
+            else loop_pos = nullptr;
             continue;
          }
          if (memchr("><", *pos, 2)) {
             state[OCT] += *pos++ == '>' ? 1 : -1;
             continue;
          }
-         static const char* state_lut = "loq";
+         static const char* state_lut = "LOQA";
          if (const char* p = (const char*) memchr(state_lut, *pos, 4)) {
             ++pos;
-            if (isdigit(*pos)) state[p - state_lut] = strtol(pos, (char**) &pos, 10);
+            state[p - state_lut] = strtol(pos, (char**) &pos, 10);
             continue;
          }
-         if (*pos == 'i') {
+         if (*pos == 'I') {
             ++pos;
             if (*pos) inst = *pos++;
             continue;
@@ -139,7 +142,7 @@ public:
             int n = (p - note_lut) + state[OCT] * 12;
             while (memchr("-+", *pos, 2)) n += *pos++ == '+' ? 1 : -1;
             wait = strtol(pos, (char**) &pos, 10) ?: state[LEN];
-            play_voice(inst, n, wait * SAMPLES_PER_ROW * state[QUANT] / 8);
+            play_voice(inst, n, wait * SAMPLES_PER_ROW * state[QUANT] / 8, state[ARP]);
             if (*pos == '/') {
                ++pos;
                wait = 0;
@@ -152,12 +155,13 @@ public:
       return false;
    }
 private:
-   enum { LEN, OCT, QUANT };
-   int state[4] = { 4, 4, 8 };
+   enum { LEN, OCT, QUANT, ARP };
+   int state[5] = { 4, 4, 8, 0 };
    char inst = 0;
-   const char* pos;
    int wait = 0;
-   int loop = -1;
+   const char* pos;
+   const char* loop_pos = nullptr;
+   int loop_count;
 };
 
 struct Player {
@@ -199,6 +203,23 @@ private:
    std::vector<Track> tracks;
 } player;
 
+class {
+public:
+   void add(const float* in) {
+      buffer[pos][0] += in[1];
+      buffer[pos][1] += in[0];
+   }
+   void mix(float* out) {
+      pos = (pos + 1) % buffer.size();
+      out[0] += buffer[pos][0] * 0.3;
+      out[1] += buffer[pos][1] * 0.3;
+      buffer[pos][0] *= 0.4;
+      buffer[pos][1] *= 0.4;
+   }
+private:
+   std::array<float[2], SAMPLES_PER_ROW * 3> buffer;
+   int pos = 0;
+} delay;
 
 void mix(float* out) {
    static int sample = 0;
@@ -219,7 +240,12 @@ void mix(float* out) {
          if (v.level <= 0.01) continue;
          break;
       }
-      float pitch = v.pitch + sinf(v.sample * 0.0008) * v.vib * (v.sample > 20000);
+      const auto& arp = envelops[v.arp_env];
+      int offset = arp[v.arp_tick];
+      if (sample % (SAMPLES_PER_ROW / 8) == 0) {
+         if (++v.arp_tick + 1 >= (int) arp.size()) v.arp_tick = arp.back();
+      }
+      float pitch = v.pitch + offset + sinf(v.sample * 0.0008) * v.vib * (v.sample > 20000);
       float speed = exp2f((pitch - 57) / 12) * 440 / MIXRATE;
       v.pos = fmod(v.pos + speed, 1);
       v.pw = fmod(v.pw + v.sweep * 0.0001, 1);
@@ -227,11 +253,20 @@ void mix(float* out) {
       switch (v.wave) {
       case PULSE: amp = v.pos > v.pw ? -1 : 1; break;
       case SAW:   amp = v.pos * 2 - 1; break;
+      case TRI:   amp = v.pos < 0.5 ? v.pos * 4 - 1 : 3 - v.pos * 4; break;
       default: break;
       }
-      out[0] += amp * v.level * v.vol * sqrtf(0.5 - v.pan * 0.5);
-      out[1] += amp * v.level * v.vol * sqrtf(0.5 + v.pan * 0.5);
+      amp = floorf(amp * 8) / 8;
+      float buf[2] = {
+         amp * v.level * v.vol * sqrtf(0.5 - v.pan * 0.5),
+         amp * v.level * v.vol * sqrtf(0.5 + v.pan * 0.5),
+      };
+      if (v.inst == 'l') delay.add(buf);
+      out[0] += buf[0];
+      out[1] += buf[1];
    }
+
+   delay.mix(out);
 }
 
 void cb(void* u, Uint8* stream, int len) {
