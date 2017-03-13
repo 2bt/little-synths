@@ -13,6 +13,23 @@ exit
 
 const char* tune = R"(
 
+#IlQ6L2c<c>d<c>d+<c1c1>d<c> c<c> f<c>d+<c>d<c1c1
+#IpA3>c20 r4 < A4a+8
+#Ib<< c c c c c c c c
+#
+#IlQ6L2c<c>d<c>d+<c1c1>f<c> d+<c> d<c>c<ca+c1c1
+#IpA3>c20 r4 < A4a+8
+#Ib<< c c c c c c c c
+#
+#IlQ6L2c<c>d<c>d+<c1c1>d<c> c<c> f<c>d+<c>d<c1c1
+#IpA3>c20 r4 < A4a+8
+#Ib<<< g+ g+ g+ g+ g+ g+ g+g+
+#
+#IlQ6L2c<c>d<c>d+<c1c1>f<c> d+<c> d<c>c<ca+c1c1
+#IpA3>c20 r4 < A4a+8
+#Ib<<< g+ g+ g+ g+ a+ a+ a+a+
+
+
 IlL2Q7>e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
 IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 IpL16Q7<g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
@@ -71,13 +88,15 @@ std::vector<float> envelops[] = {
    { 0, 0 },
    { -1, -0.5, 0, 2 },
    { -2, -2, -2, -2, 0, 0, 0, 0, -2, 8 },
+   { 0, 0, 3, 3, 7, 7, 10, 10, 0},
+   { 0, 0, 4, 4, 7, 7, 12, 12, 0},
 };
 void init_voices() {
    for (Voice& v : voices) v.state = OFF;
    instruments[ 0 ] = { 1,   PULSE, 0.5, 0,   { 0.01,  0.5, 0.9999,   0.9992 }  };
-   instruments['l'] = { 0.8, PULSE, 0.2, 0.2, { 0.01,  0.3, 0.9999,   0.9992 }, 0.15, 0.09 };
+   instruments['l'] = { 0.8, PULSE, 0.2, 0.2, { 0.01,  0.5, 0.9999,   0.9992 }, 0.15, 0.09 };
    instruments['p'] = { 0.3, PULSE, 0.3,-0.3, { 0.001, 0.0, 0.999992, 0.9999 }, 0.3,  0.05 };
-   instruments['b'] = { 1.8, PULSE, 0.3, 0.1,   { 0.01,  0.5, 0.9998,   0.9992 }, 0, 0.2, true, 1.1, -3.5 };
+   instruments['b'] = { 1.8, PULSE, 0.3, 0.1, { 0.01,  0.5, 0.9998,   0.9992 }, 0, 0.2, true, 1.1, -3.5 };
 }
 
 
@@ -263,14 +282,13 @@ void mix(float* out) {
       default: break;
       }
       if (v.filter) {
-		 v.cutoff -= 0.0001;
+         v.cutoff -= 0.0001;
          float f = exp2f(v.cutoff);
          v.low += f * v.band;
          v.high = amp - v.band * v.reso - v.low;
          v.band += f * v.high;
          amp = v.low;
       }
-
       float buf[2] = {
          amp * v.level * v.vol * sqrtf(0.5 - v.pan * 0.5),
          amp * v.level * v.vol * sqrtf(0.5 + v.pan * 0.5),
