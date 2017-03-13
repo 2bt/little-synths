@@ -15,11 +15,11 @@ const char* tune = R"(
 
 IlL2Q7>e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
 IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
-IpL16Q7<g/>c/e<g+/>c/f<g/>c/e<g+/>c/f<a+/>d/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+IpL16Q7<g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 
 IlL2Q7>e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
 IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
-IpL16Q7<g/>c/e<g+/>c/f<g/>c/e<g+/>c/f<a+/>d/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+IpL16Q7<g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 
 IlL2Q7>g10>A1dA<b>c6<b3r1b4a3r1A1a3Ag3ad+1d1c6r8d+8e16g+4a4b8b1a1g8arg4a
 IbL2Q5O2ee>e<ee>e<e>e<<aa>a<aa>a<a>add>d<dd>d<d>d<<a+a+>a+<a+a+>a+<a+>a+<aa>a<aa>a<a>a<g+g+>g+<g+g+>g+<g+>g+<gg>g<gg>g<g>g<gg>g<gg>g<g>g
