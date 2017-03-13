@@ -13,16 +13,16 @@ exit
 
 const char* tune = R"(
 
-IlL2Q7>e12def4ec4d4e14deA1f4Aec4d4d18c<g>cdA1eAdc<g>e16f8g8
-IbQ4<ccrr<a+a+rraarrg+g+rrggrr>ddrrccrr<f>f<g>g
+IlL2Q7>e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
+IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 IpL16Q7<g/>c/e<g+/>c/f<g/>c/e<g+/>c/f<a+/>d/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 
-IlL2Q7>e12def4ec4d4e14deA1f4Aec4d4d18c<g>cdA1eAdc<g>e16f8g8
-IbQ4<ccrr<a+a+rraarrg+g+rrggrr>ddrrccrr<f>f<g>g
+IlL2Q7>e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
+IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 IpL16Q7<g/>c/e<g+/>c/f<g/>c/e<g+/>c/f<a+/>d/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 
 IlL2Q7>g10>A1dA<b>c6<b3r1b4a3r1A1a3Ag3ad+1d1c6r8d+8e16g+4a4b8b1a1g8arg4a
-IbL2Q7O2ee>e<ee>e<e>e<<aa>a<aa>a<a>add>d<dd>d<d>d<<a+a+>a+<a+a+>a+<a+>a+<aa>a<aa>a<a>a<g+g+>g+<g+g+>g+<g+>g+<gg>g<gg>g<g>g<gg>g<gg>g<g>g
+IbL2Q5O2ee>e<ee>e<e>e<<aa>a<aa>a<a>add>d<dd>d<d>d<<a+a+>a+<a+a+>a+<a+>a+<aa>a<aa>a<a>a<g+g+>g+<g+g+>g+<g+>g+<gg>g<gg>g<g>g<gg>g<gg>g<g>g
 IpL16Q7<b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
 
 )";
@@ -42,6 +42,9 @@ struct Instrument {
    float env[4];
    float vib;
    float sweep;
+   bool  filter;
+   float reso;
+   float cutoff;
 };
 struct Voice : Instrument {
    int   sample = 0;
@@ -49,6 +52,9 @@ struct Voice : Instrument {
    float level  = 0;
    float pos    = 0;
    float noise  = 0;
+   float high   = 0;
+   float band   = 0;
+   float low    = 0;
    int   inst;
    float pitch;
    int   length;
@@ -61,17 +67,17 @@ struct Voice : Instrument {
 
 std::array<Voice, POLY> voices;
 std::array<Instrument, 128> instruments;
-std::vector<int> envelops[] = {
+std::vector<float> envelops[] = {
    { 0, 0 },
-   { -1, 0, 1 },
-//   { 0, 0, 0, 0, 12, 12, 12, 12, 0 },
+   { -1, -0.5, 0, 2 },
+   { -2, -2, -2, -2, 0, 0, 0, 0, -2, 8 },
 };
 void init_voices() {
    for (Voice& v : voices) v.state = OFF;
-   instruments[ 0 ] = { 1,   PULSE, 0.5, 0,   { 0.01,  0.5, 0.9999,   0.9992 }, 0,    0 };
-   instruments['l'] = { 0.8, PULSE, 0.2, 0.1, { 0.01,  0.3, 0.9999,   0.9992 }, 0.15, 0.09 };
+   instruments[ 0 ] = { 1,   PULSE, 0.5, 0,   { 0.01,  0.5, 0.9999,   0.9992 }  };
+   instruments['l'] = { 0.8, PULSE, 0.2, 0.2, { 0.01,  0.3, 0.9999,   0.9992 }, 0.15, 0.09 };
    instruments['p'] = { 0.3, PULSE, 0.3,-0.3, { 0.001, 0.0, 0.999992, 0.9999 }, 0.3,  0.05 };
-   instruments['b'] = { 1.4, TRI,   0.5, 0,   { 0.01,  0.5, 0.9998,   0.9992 }, 0,    0 };
+   instruments['b'] = { 1.8, PULSE, 0.3, 0.1,   { 0.01,  0.5, 0.9998,   0.9992 }, 0, 0.2, true, 1.1, -3.5 };
 }
 
 
@@ -241,7 +247,7 @@ void mix(float* out) {
          break;
       }
       const auto& arp = envelops[v.arp_env];
-      int offset = arp[v.arp_tick];
+      float offset = arp[v.arp_tick];
       if (sample % (SAMPLES_PER_ROW / 8) == 0) {
          if (++v.arp_tick + 1 >= (int) arp.size()) v.arp_tick = arp.back();
       }
@@ -256,7 +262,15 @@ void mix(float* out) {
       case TRI:   amp = v.pos < 0.5 ? v.pos * 4 - 1 : 3 - v.pos * 4; break;
       default: break;
       }
-      amp = floorf(amp * 8) / 8;
+      if (v.filter) {
+		 v.cutoff -= 0.0001;
+         float f = exp2f(v.cutoff);
+         v.low += f * v.band;
+         v.high = amp - v.band * v.reso - v.low;
+         v.band += f * v.high;
+         amp = v.low;
+      }
+
       float buf[2] = {
          amp * v.level * v.vol * sqrtf(0.5 - v.pan * 0.5),
          amp * v.level * v.vol * sqrtf(0.5 + v.pan * 0.5),
@@ -265,7 +279,6 @@ void mix(float* out) {
       out[0] += buf[0];
       out[1] += buf[1];
    }
-
    delay.mix(out);
 }
 
