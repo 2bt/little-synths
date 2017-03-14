@@ -45,6 +45,7 @@ struct EnvVal {
 
 const char* tune = R"(
 
+
 #IlQ6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
 #IpA3>c20r4<A4a+8
 #Ib<<cccccccc
@@ -61,6 +62,7 @@ const char* tune = R"(
 #IpA3>c20r4<A4a+8
 #Ib<<<g+g+g+g+a+a+a+a+
 
+# Laxity - Basic
 
 IlL2Q7>e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
 IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
@@ -70,7 +72,7 @@ IlL2Q7>e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
 IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 IpL16Q7<g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 
-IlL2Q7>g10>A1dA<b>c6<b3r1b4a3r1A1a3Ag3ad+1d1c6r8Q8d+8Q7e16g+4a4b8b1a1g8arg4a
+IlL2Q7>g10>A1dA<b>c6<b3r1b4a3r1A1a3Ag3ad+1d1c6r8Q8d+8Q7e16g+4a4b8b1a1Q8g8Q7arg4a
 IbQ4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
 IpL16Q7<b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
 
@@ -318,7 +320,6 @@ void mix(float* out) {
       default: break;
       }
       if (v.filter) {
-//         v.cutoff -= 0.0001;
          float f = exp2f(v.cutoff);
          v.low += f * v.band;
          v.high = amp - v.band * v.reso - v.low;
