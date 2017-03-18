@@ -1,5 +1,5 @@
 #if 0
-g++ -Wall -std=c++11 -g -xc++ $0 -lSDL2 && ./a.out
+g++ -Wall -std=c++11 -O3 -xc++ $0 -lSDL2 && ./a.out
 #rm -f a.out
 exit
 #endif
@@ -11,8 +11,22 @@ exit
 #include <array>
 #include <SDL2/SDL.h>
 
-
 /*
+std::vector<float> envelopes[] = {
+	{ 0, 0 },
+	{ -2, -1.66, -1.33, -1, -0.66, -0.33, 0, 6 },
+	{ -2, -2, -2, -2, 0, 0, 0, 0, -2, 8 },
+	{ 0, 0, 3, 3, 7, 7, 10, 10, 0},
+	{ 0, 0, 4, 4, 7, 7, 12, 12, 0},
+};
+void init_voices() {
+	for (Voice& v : voices) v.state = OFF;
+	instruments[ 0 ] = { 1,	PULSE, 0.5, 0,	{ 0.01,  0.5, 0.9999,	0.9992 }  };
+	instruments['l'] = { 0.8, PULSE, 0.2, 0.2, { 0.01,  0.5, 0.9999,	0.9992 }, 0.15, 0.09, false, 0, 0, 0.3 };
+	instruments['p'] = { 0.3, PULSE, 0.3,-0.3, { 0.001, 0.0, 0.999992, 0.9999 }, 0.3,  0.05 };
+	instruments['b'] = { 1.8, PULSE, 0.3, 0.1, { 0.01,  0.5, 0.9998,	0.9992 }, 0, 0.2, true, 0.9, -4.5 };
+	instruments['m'] = { 1.2, SAW,	0.5,-0.1, { 0.0005,0.5, 0.99993,  0.99993}, 0.35, 0.09, false, 0, 0, 0.1 };
+}
 
 # envelopes
 0@ -2 -1 0
@@ -27,14 +41,16 @@ I0 c '0=1.3 '9@1
 
 const char* src = R"(
 
+@8=|0 7 10 17
+@9=|0 7 10 15
 
+:1=w0 o@0
+
+#a8'o@8 a8'o@9
 
 L2Q4O2	a'e0.5'p.9/>> a'o@0 r16<a'v.1>b'w1'p-.2<a'v.1>c'u.5'e0.2'p.3 e'v.2
-O1		a16'w2
+O1		a16'w2'r0.99993
 
-
-
-L2Q7> e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
 
 
 #IlQ6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
@@ -122,7 +138,7 @@ public:
 	}
 	operator float() const { return m_val; }
 	void tick() {
-		if (!m_env) return;
+		if (!m_env || m_env->data.empty()) return;
 		m_val = m_env->data[m_pos];
 		if (++m_pos >= (int) m_env->data.size()) m_pos = m_env->loop;
 	}
@@ -302,7 +318,7 @@ private:
 			if (*t.pos == ']') {
 				assert(t.loop_pos);
 				++t.pos;
-				if (++t.loop_count < strtol(t.pos, (char**) &t.pos, 10)) t.pos = t.loop_pos;
+				if (++t.loop_count < (int) strtoul(t.pos, (char**) &t.pos, 10)) t.pos = t.loop_pos;
 				else t.loop_pos = nullptr;
 				continue;
 			}
@@ -313,12 +329,12 @@ private:
 			static const char* state_lut = "LOQI";
 			if (const char* p = (const char*) memchr(state_lut, *t.pos, 4)) {
 				++t.pos;
-				t.state[p - state_lut] = strtol(t.pos, (char**) &t.pos, 10);
+				t.state[p - state_lut] = strtoul(t.pos, (char**) &t.pos, 10);
 				continue;
 			}
 			if (*t.pos == 'r') {
 				++t.pos;
-				if (isdigit(*t.pos)) t.wait = strtol(t.pos, (char**) &t.pos, 10);
+				if (isdigit(*t.pos)) t.wait = strtoul(t.pos, (char**) &t.pos, 10);
 				else t.wait = t.state[Track::LEN];
 				continue;
 			}
@@ -327,7 +343,7 @@ private:
 				++t.pos;
 				int note = (p - note_lut) + t.state[Track::OCT] * 12;
 				while (memchr("-+", *t.pos, 2)) note += *t.pos++ == '+' ? 1 : -1;
-				t.wait = strtol(t.pos, (char**) &t.pos, 10) ?: t.state[Track::LEN];
+				t.wait = strtoul(t.pos, (char**) &t.pos, 10) ?: t.state[Track::LEN];
 
 				Voice* best = nullptr;
 				for (Voice& w : m_voices) {
@@ -337,11 +353,12 @@ private:
 				Voice& v = *best;
 
 				// TODO: bounds check
-				v.inst		= m_insts[t.state[Track::INST]];
+				if (t.state[Track::INST] < (int) m_insts.size()) {
+					v.inst = m_insts[t.state[Track::INST]];
+				}
 				v.state		= Voice::ATTACK;
 				v.pitch		= note;
 				v.length	= t.wait * m_samples_per_row * t.state[Track::QUANT] / 8;
-
 				v.sample	= 0;
 				v.level		= 0;
 				v.pos		= 0;
@@ -356,15 +373,13 @@ private:
 						++t.pos;
 						if (*t.pos == '@') {
 							++t.pos;
-							int env = strtol(t.pos, (char**) &t.pos, 10);
-							// TODO: bounds check
-							v.inst.params[p - inst_lut] = m_envs[env];
+							int env = strtoul(t.pos, (char**) &t.pos, 10);
+							if (env < (int) m_envs.size()) v.inst.params[p - inst_lut] = m_envs[env];
 						}
 						else {
 							v.inst.params[p - inst_lut] = strtof(t.pos, (char**) &t.pos);
 						}
 					}
-					while (memchr(" \t", *t.pos, 2)) ++t.pos;
 				}
 
 				// polyphony
@@ -380,6 +395,46 @@ private:
 		}
 	}
 
+	void parse_env() {
+		++m_pos;
+		int i = strtoul(m_pos, (char**) &m_pos, 10);
+		if ((int) m_envs.size() < i + 1) m_envs.resize(i + 1);
+		Env& e = m_envs[i];
+		if (!e.data.empty()) return;
+		e.loop = -1;
+		if (*m_pos != '=') return;
+		++m_pos;
+		for(;;) {
+			while (memchr(" \t", *m_pos, 2)) ++m_pos;
+			const char* p = m_pos;
+			float f = strtof(m_pos, (char**) &m_pos);
+			if (m_pos != p) {
+				e.data.push_back(f);
+			}
+			else if (*m_pos == '|') {
+				++m_pos;
+				e.loop = e.data.size();
+			}
+			else break;
+		}
+		if (e.loop == -1) e.loop = e.data.size();
+	}
+
+	void parse_inst() {
+		++m_pos;
+		int i = strtoul(m_pos, (char**) &m_pos, 10);
+		if ((int) m_insts.size() < i + 1) m_insts.resize(i + 1);
+		Inst& inst = m_insts[i];
+	}
+
+	void skip(bool lines=true) {
+		for (;;) {
+			while (memchr("\n\t  " + !lines, *m_pos, 3)) ++m_pos;
+			if (*m_pos != '#') break;
+			while (*m_pos && *m_pos != '\n') ++m_pos;
+			m_pos += (*m_pos == '\n');
+		}
+	}
 
 	void tick() {
 		for (;;) {
@@ -393,12 +448,17 @@ private:
 			//if (!m_pos) break;
 
 			for (int i = 0; i < (int) m_tracks.size() && *m_pos && *m_pos != '\n'; ++i) {
-				Track& t = m_tracks[i];
-				t.pos			= m_pos;
-				t.loop_pos		= nullptr;
-				t.loop_count	= 0;
-				t.state			= { 4, 4, 7, 0 };
-				t.wait			= 0;
+
+				if (*m_pos == '@') parse_env();
+				else if (*m_pos == ':') parse_inst();
+				else {
+					Track& t		= m_tracks[i];
+					t.pos			= m_pos;
+					t.loop_pos		= nullptr;
+					t.loop_count	= 0;
+					t.state			= { 4, 4, 7, 0 };
+					t.wait			= 0;
+				}
 
 				// next line
 				while (*m_pos && *m_pos != '\n') ++m_pos;
@@ -414,16 +474,6 @@ private:
 		}
 	}
 
-	void skip(bool lines=true) {
-		for (;;) {
-			while (memchr("\n\t  " + !lines, *m_pos, 3)) ++m_pos;
-			if (*m_pos != '#') break;
-			while (*m_pos && *m_pos != '\n') ++m_pos;
-			m_pos += (*m_pos == '\n');
-		}
-	}
-
-
 	const char*							m_src;
 	const char*							m_pos;
 	std::array<Track, TRACK_COUNT>		m_tracks;
@@ -437,23 +487,6 @@ private:
 	Echo								m_echo;
 };
 
-/*
-std::vector<float> envelopes[] = {
-	{ 0, 0 },
-	{ -2, -1.66, -1.33, -1, -0.66, -0.33, 0, 6 },
-	{ -2, -2, -2, -2, 0, 0, 0, 0, -2, 8 },
-	{ 0, 0, 3, 3, 7, 7, 10, 10, 0},
-	{ 0, 0, 4, 4, 7, 7, 12, 12, 0},
-};
-void init_voices() {
-	for (Voice& v : voices) v.state = OFF;
-	instruments[ 0 ] = { 1,	PULSE, 0.5, 0,	{ 0.01,  0.5, 0.9999,	0.9992 }  };
-	instruments['l'] = { 0.8, PULSE, 0.2, 0.2, { 0.01,  0.5, 0.9999,	0.9992 }, 0.15, 0.09, false, 0, 0, 0.3 };
-	instruments['p'] = { 0.3, PULSE, 0.3,-0.3, { 0.001, 0.0, 0.999992, 0.9999 }, 0.3,  0.05 };
-	instruments['b'] = { 1.8, PULSE, 0.3, 0.1, { 0.01,  0.5, 0.9998,	0.9992 }, 0, 0.2, true, 0.9, -4.5 };
-	instruments['m'] = { 1.2, SAW,	0.5,-0.1, { 0.0005,0.5, 0.99993,  0.99993}, 0.35, 0.09, false, 0, 0, 0.1 };
-}
-*/
 
 Tune tune(src);
 
