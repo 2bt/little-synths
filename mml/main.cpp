@@ -19,74 +19,56 @@ std::vector<float> envelopes[] = {
 	{ 0, 0, 3, 3, 7, 7, 10, 10, 0},
 	{ 0, 0, 4, 4, 7, 7, 12, 12, 0},
 };
-void init_voices() {
-	for (Voice& v : voices) v.state = OFF;
-	instruments[ 0 ] = { 1,	PULSE, 0.5, 0,	{ 0.01,  0.5, 0.9999,	0.9992 }  };
-	instruments['l'] = { 0.8, PULSE, 0.2, 0.2, { 0.01,  0.5, 0.9999,	0.9992 }, 0.15, 0.09, false, 0, 0, 0.3 };
-	instruments['p'] = { 0.3, PULSE, 0.3,-0.3, { 0.001, 0.0, 0.999992, 0.9999 }, 0.3,  0.05 };
-	instruments['b'] = { 1.8, PULSE, 0.3, 0.1, { 0.01,  0.5, 0.9998,	0.9992 }, 0, 0.2, true, 0.9, -4.5 };
-	instruments['m'] = { 1.2, SAW,	0.5,-0.1, { 0.0005,0.5, 0.99993,  0.99993}, 0.35, 0.09, false, 0, 0, 0.1 };
-}
-
-# envelopes
-0@ -2 -1 0
-1@ |0 3 7
-
-# instrument
-0: 1 @2 3 4 4646
-
-I0 c '0=1.3 '9@1
-
 */
 
 const char* src = R"(
 
-@8=|0 7 10 17
-@9=|0 7 10 15
+@8=|0 3 7 10
+@9=|0 4 7 12
 
-:1=w0 o@0
-
-#a8'o@8 a8'o@9
-
-L2Q4O2	a'e0.5'p.9/>> a'o@0 r16<a'v.1>b'w1'p-.2<a'v.1>c'u.5'e0.2'p.3 e'v.2
-O1		a16'w2'r0.99993
+:1= v0.8 w0 u0.2 p 0.2 a0.01   s0.5 d0.9999    r0.9992  i0.15 t0.09 e0.3
+:2= v0.3 w0 u0.3 p-0.3 a0.001  s0.0 d0.999992  r0.9999  i0.3  t0.05
+:3= v1.8 w0 u0.3 p 0.1 a0.01   s0.5 d0.99998   r0.9998        t0.2  f1 q0.9 c-4.5
+:4= v1.2 w1	u0.5 p-0.1 a0.0005 s0.5 d0.99993   r0.99993 i0.35 t0.09 e0.1
 
 
+I1Q6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+I2> c20'o@8 r4 <a+8'o@9
+I3Q7O2 cccccccc
 
-#IlQ6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-#IpA3>c20r4<A4a+8
-#Q7Ib<<cccccccc
-#
-#IlQ6L2c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-#IpA3>c20r4<A4a+8
-#Q7Ib<<cccccccc
-#
-#IlQ6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-#IpA3>c20r4<A4a+8
-#Q7Ib<<<g+g+g+g+g+g+g+g+
-#
-#IlQ6L2c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-#IpA3>c20r4<A4a+8
-#Q7Ib<<<g+g+g+g+a+a+a+a+
-#
-#IlQ6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-#IpA3>c20r4<A4a+8
-#Q7Ib<<cccccccc
-#Q7Ima+30f2
-#
-#IlQ6L2c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-#IpA3>c20r4<A4a+8
-#Q7Ib<<cccccccc
-#Q7Img26g2a+2g2
-#
-#IlQ6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-#IpA3>c20r4<A4a+8
-#Q7Ib<<<g+g+g+g+g+g+g+g+
-#Q7Im>d+3d3<a+2>c18c2<g2f34/r2
-#
-#IlQ6L2c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-#IpA3>c20r4<A4a+8
-#Q7Ib<<<g+g+g+g+a+a+a+a+
+I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>    c20'o@8 r4 <a+8'o@9
+I3Q7O2 cccccccc
+
+I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+I2>    c20'o@8 r4 <a+8'o@9
+I3Q7O1 g+g+g+g+g+g+g+g+
+
+I1Q6L2  c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>     c20'o@8 r4 <a+8'o@9
+I3Q7O1 g+g+g+g+a+a+a+a+
+
+
+
+I1Q6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+I2> c20'o@8 r4 <a+8'o@9
+I3Q7O2 cccccccc
+I4Q7   a+30f2
+
+I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>    c20'o@8 r4 <a+8'o@9
+I3Q7O2 cccccccc
+I4Q7   g26g2a+2g2
+
+I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+I2>    c20'o@8 r4 <a+8'o@9
+I3Q7O1 g+g+g+g+g+g+g+g+
+I4Q7   >d+3d3<a+2>c18c2<g2f34/r2
+
+I1Q6L2  c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>     c20'o@8 r4 <a+8'o@9
+I3Q7O1 g+g+g+g+a+a+a+a+
+
 
 
 
@@ -149,8 +131,17 @@ private:
 };
 
 
-static const char* inst_lut = "vwoup" "asdr" "it" "frc" "e";
+static const char* inst_lut = "vwoup" "asdr" "it" "fqc" "e";
 union Inst {
+	Inst() {
+		vol		= 1;
+		attack	= 0.005;
+		sustain	= 0.5;
+		decay	= 0.9999;
+		release	= 0.9999;
+		pw		= 0.25;
+		offset	= 0;
+	}
 	std::array<Param, 15> params;
 	struct {
 		Param vol;
@@ -230,24 +221,6 @@ public:
 		m_src = m_pos = src;
 		skip();
 		m_src = m_pos;
-
-
-
-		// default envelope
-		m_envs.emplace_back();
-		m_envs.back().data = { 5, 0 };
-		m_envs.back().loop = 1;
-
-		// default instrument
-		m_insts.emplace_back();
-		Inst& i = m_insts.back();
-		i.vol		= 1;
-		i.attack	= 0.005;
-		i.sustain	= 0.5;
-		i.decay		= 0.9999;
-		i.release	= 0.999;
-		i.pw		= 0.25;
-		i.offset	= 0;
 	}
 
 
@@ -352,10 +325,8 @@ private:
 				}
 				Voice& v = *best;
 
-				// TODO: bounds check
-				if (t.state[Track::INST] < (int) m_insts.size()) {
-					v.inst = m_insts[t.state[Track::INST]];
-				}
+				if (t.state[Track::INST] < (int) m_insts.size()) v.inst = m_insts[t.state[Track::INST]];
+				else v.inst = Inst();
 				v.state		= Voice::ATTACK;
 				v.pitch		= note;
 				v.length	= t.wait * m_samples_per_row * t.state[Track::QUANT] / 8;
@@ -425,6 +396,22 @@ private:
 		int i = strtoul(m_pos, (char**) &m_pos, 10);
 		if ((int) m_insts.size() < i + 1) m_insts.resize(i + 1);
 		Inst& inst = m_insts[i];
+		if (*m_pos != '=') return;
+		++m_pos;
+		for (;;) {
+			while (memchr(" \t", *m_pos, 2)) ++m_pos;
+			const char* p = (const char*) memchr(inst_lut, *m_pos, strlen(inst_lut));
+			if (!p) break;
+			++m_pos;
+			if (*m_pos == '@') {
+				++m_pos;
+				int env = strtoul(m_pos, (char**) &m_pos, 10);
+				if (env < (int) m_envs.size()) inst.params[p - inst_lut] = m_envs[env];
+			}
+			else {
+				inst.params[p - inst_lut] = strtof(m_pos, (char**) &m_pos);
+			}
+		}
 	}
 
 	void skip(bool lines=true) {
