@@ -1,6 +1,6 @@
 #if 0
 g++ -Wall -std=c++11 -O3 -xc++ $0 -lSDL2 && ./a.out
-#rm -f a.out
+rm -f a.out
 exit
 #endif
 
@@ -32,8 +32,8 @@ const char* src = R"(
 :4= v1.2 w1	u0.5 p-0.1 a0.0005 s0.5 d0.99993   r0.99993 i0.35 t0.09 e0.1
 
 
-I1Q6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2> c20'o@8 r4 <a+8'o@9
+I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+I2>    c20'o@8 r4 <a+8'o@9
 I3Q7O2 cccccccc
 
 I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
@@ -44,14 +44,14 @@ I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
 I2>    c20'o@8 r4 <a+8'o@9
 I3Q7O1 g+g+g+g+g+g+g+g+
 
-I1Q6L2  c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>     c20'o@8 r4 <a+8'o@9
+I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>    c20'o@8 r4 <a+8'o@9
 I3Q7O1 g+g+g+g+a+a+a+a+
 
 
 
-I1Q6L2c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2> c20'o@8 r4 <a+8'o@9
+I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+I2>    c20'o@8 r4 <a+8'o@9
 I3Q7O2 cccccccc
 I4Q7   a+30f2
 
@@ -65,8 +65,8 @@ I2>    c20'o@8 r4 <a+8'o@9
 I3Q7O1 g+g+g+g+g+g+g+g+
 I4Q7   >d+3d3<a+2>c18c2<g2f34/r2
 
-I1Q6L2  c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>     c20'o@8 r4 <a+8'o@9
+I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>    c20'o@8 r4 <a+8'o@9
 I3Q7O1 g+g+g+g+a+a+a+a+
 
 
