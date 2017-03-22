@@ -1,5 +1,5 @@
-#if 0
-g++ -Wall -std=c++11 -O3 -xc++ $0 -lSDL2 && ./a.out
+#if 0 // vim: tabstop=4 shiftwidth=4 noexpandtab
+g++-6 -Wall -std=c++11 -O3 -xc++ $0 -lSDL2 && ./a.out
 rm -f a.out
 exit
 #endif
@@ -11,82 +11,74 @@ exit
 #include <array>
 #include <SDL2/SDL.h>
 
-/*
-std::vector<float> envelopes[] = {
-	{ 0, 0 },
-	{ -2, -1.66, -1.33, -1, -0.66, -0.33, 0, 6 },
-	{ -2, -2, -2, -2, 0, 0, 0, 0, -2, 8 },
-	{ 0, 0, 3, 3, 7, 7, 10, 10, 0},
-	{ 0, 0, 4, 4, 7, 7, 12, 12, 0},
-};
-*/
-
 const char* src = R"(
 
 @8=|0 3 7 10
 @9=|0 4 7 12
-
-:1= v0.8 w0 u0.2 p 0.2 a0.01   s0.5 d0.9999    r0.9992  i0.15 t0.09 e0.3
-:2= v0.3 w0 u0.3 p-0.3 a0.001  s0.0 d0.999992  r0.9999  i0.3  t0.05
-:3= v1.8 w0 u0.3 p 0.1 a0.01   s0.5 d0.99998   r0.9998        t0.2  f1 q0.9 c-4.5
-:4= v1.2 w1	u0.5 p-0.1 a0.0005 s0.5 d0.99993   r0.99993 i0.35 t0.09 e0.1
-
-
-I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>    c20'o@8 r4 <a+8'o@9
-I3Q7O2 cccccccc
-
-I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>    c20'o@8 r4 <a+8'o@9
-I3Q7O2 cccccccc
-
-I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>    c20'o@8 r4 <a+8'o@9
-I3Q7O1 g+g+g+g+g+g+g+g+
-
-I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>    c20'o@8 r4 <a+8'o@9
-I3Q7O1 g+g+g+g+a+a+a+a+
+@2=7 0
+@1=2 4
+:1=	v8	w0	u@1	p3	a0.01	s5	d0.9999		r0.9992		i1.5	t0.9	e3
+:2=	v3	w0	u4	p-3	a0.0003	s5	d0.999992	r0.9999
+:3=	v18	w0	u3	p1	a0.01	s9	d0.99998	r0.9994				t0.2			f1	q2	c-3
+:4=	v12	w1	u5	p-1	a0.0005	s5	d0.99993	r0.99993	i3.5	t0.09	e0.1
 
 
-
-I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>    c20'o@8 r4 <a+8'o@9
-I3Q7O2 cccccccc
-I4Q7   a+30f2
-
-I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>    c20'o@8 r4 <a+8'o@9
-I3Q7O2 cccccccc
-I4Q7   g26g2a+2g2
-
-I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>    c20'o@8 r4 <a+8'o@9
-I3Q7O1 g+g+g+g+g+g+g+g+
-I4Q7   >d+3d3<a+2>c18c2<g2f34/r2
-
-I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>    c20'o@8 r4 <a+8'o@9
-I3Q7O1 g+g+g+g+a+a+a+a+
-
+#I1Q7L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+#I2>     c20'o@8 r4 <a+8'o@9
+#I3Q7O2 cccccccc
+#
+#I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+#I2>    c20'o@8 r4 <a+8'o@9
+#I3Q7O2 cccccccc
+#
+#I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+#I2>    c20'o@8 r4 <a+8'o@9
+#I3Q7O1 g+g+g+g+g+g+g+g+
+#
+#I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+#I2>    c20'o@8 r4 <a+8'o@9
+#I3Q7O1 g+g+g+g+a+a+a+a+
+#
+#
+#I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+#I2>    c20'o@8 r4 <a+8'o@9
+#I3Q7O2 cccccccc
+#I4Q7   a+30f2
+#
+#I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+#I2>    c20'o@8 r4 <a+8'o@9
+#I3Q7O2 cccccccc
+#I4Q7   g26g2a+2g2
+#
+#I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+#I2>    c20'o@8 r4 <a+8'o@9
+#I3Q7O1 g+g+g+g+g+g+g+g+
+#I4Q7   >d+3d3<a+2>c18c2<g2f34/r2
+#
+#I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+#I2>    c20'o@8 r4 <a+8'o@9
+#I3Q7O1 g+g+g+g+a+a+a+a+
+#
 
 
 
 
 # Laxity - Basic
 
+@3=-2 -1.5 -1 -0.5 0
+@4=-2 -2 0 0 -2
 
-#IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
-#IpL16Q7<g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+I1L2Q7>  e12def4ec4d4 e14def4'o@3ec4d4 d17 d3'o@4<g>cde'o@3dc<g> e16f8g8
+I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 
+I1L2Q7>  e12def4ec4d4 e14def4'o@3ec4d4 d17 d3'o@4<g>cde'o@3dc<g> e16f8g8
+I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 
-#IlL2Q7>e12def4ec4d4 e14deA1f4Aec4d4 d17A2d3A<g>cdA1eAdc<g> e16f8g8
-#IbQ4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
-#IpL16Q7<g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
-#
-#IlL2Q7>g10>A1dA<b>c6<b3r1b4a3r1A1a3Ag3ad+1d1c6r8Q8d+8Q7e16g+4a4b8b1a1Q8g8Q7arg4a
-#IbQ4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
-#IpL16Q7<b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
+I1L2Q7>  g10>d'o@3<b>c6<b3r1b4a3r1a3'o@3g3ad+1d1c6r8Q8d+8Q7e16g+4a4b8b1a1Q8g8Q7arg4a
+I2L16Q7< b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
+I3Q4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
 
 )";
 
@@ -134,12 +126,12 @@ private:
 static const char* inst_lut = "vwoup" "asdr" "it" "fqc" "e";
 union Inst {
 	Inst() {
-		vol		= 1;
+		vol		= 10;
 		attack	= 0.005;
-		sustain	= 0.5;
+		sustain	= 5;
 		decay	= 0.9999;
 		release	= 0.9999;
-		pw		= 0.25;
+		pw		= 5;
 		offset	= 0;
 	}
 	std::array<Param, 15> params;
@@ -243,20 +235,27 @@ public:
 				if (v.level > 1) v.state = Voice::HOLD;
 				break;
 			case Voice::HOLD:
-				v.level = v.inst.sustain + (v.level - v.inst.sustain) * v.inst.decay;
+				v.level = v.inst.sustain * 0.1 + (v.level - v.inst.sustain * 0.1) * v.inst.decay;
 				break;
 			default:
 				v.level *=  v.inst.release;
 				if (v.level <= 0.01) continue;
 				break;
 			}
-			float pitch = v.pitch + v.inst.offset + sinf(v.sample * 0.0008) * v.inst.vib * (v.sample > 20000);
-			float speed = exp2f((pitch - 57) / 12) * 440 / MIXRATE;
-			v.pos = fmod(v.pos + speed, 1);
-//			v.pw = fmod(v.pw + v.inst.sweep * 0.0001, 1);
+			float pitch = v.pitch + v.inst.offset;
+			// vibrato
+			pitch += sinf(v.sample * 0.0008) * v.inst.vib * 0.1 * (v.sample > 20000);
+			v.pos += exp2f((pitch - 57) / 12) * 440 / MIXRATE;
+			v.pos -= floor(v.pos);
+
+			// pulse sweep
+//			v.pw += v.inst.sweep * 0.001
+//			v.pw -= floor(pw);
+
+
 			float amp = 0;
 			switch ((int) v.inst.wave) {
-			case 0: amp = v.pos > v.inst.pw ? -1 : 1; break;
+			case 0: amp = v.pos > v.inst.pw * 0.1 ? -1 : 1; break;
 			case 1: amp = v.pos * 2 - 1; break;
 			case 2: amp = v.pos < 0.5 ? v.pos * 4 - 1 : 3 - v.pos * 4; break;
 			default: break;
@@ -268,11 +267,18 @@ public:
 				v.band += f * v.high;
 				amp = v.low;
 			}
-			amp *= v.level * v.inst.vol;
-			float buf[2] = { amp * sqrtf(0.5 - v.inst.pan * 0.5), amp * sqrtf(0.5 + v.inst.pan * 0.5), };
+			amp *= v.level * v.inst.vol * 0.1;
+			float buf[2] = {
+				amp * sqrtf(0.5 - v.inst.pan * 0.05),
+				amp * sqrtf(0.5 + v.inst.pan * 0.05)
+			};
 			out[0] += buf[0];
 			out[1] += buf[1];
-			if (v.inst.echo > 0) m_echo.add(buf[0] * v.inst.echo, buf[1] * v.inst.echo);
+			if (v.inst.echo > 0) {
+				m_echo.add(
+					buf[0] * v.inst.echo * 0.1,
+					buf[1] * v.inst.echo * 0.1);
+			}
 		}
 		m_echo.add_mix(out);
 	}
@@ -325,7 +331,9 @@ private:
 				}
 				Voice& v = *best;
 
-				if (t.state[Track::INST] < (int) m_insts.size()) v.inst = m_insts[t.state[Track::INST]];
+				if (t.state[Track::INST] < (int) m_insts.size()) {
+					v.inst = m_insts[t.state[Track::INST]];
+				}
 				else v.inst = Inst();
 				v.state		= Voice::ATTACK;
 				v.pitch		= note;
@@ -379,16 +387,14 @@ private:
 			while (memchr(" \t", *m_pos, 2)) ++m_pos;
 			const char* p = m_pos;
 			float f = strtof(m_pos, (char**) &m_pos);
-			if (m_pos != p) {
-				e.data.push_back(f);
-			}
+			if (m_pos != p) e.data.push_back(f);
 			else if (*m_pos == '|') {
 				++m_pos;
 				e.loop = e.data.size();
 			}
 			else break;
 		}
-		if (e.loop == -1) e.loop = e.data.size();
+		if (e.loop == -1) e.loop = e.data.size() - 1;
 	}
 
 	void parse_inst() {
