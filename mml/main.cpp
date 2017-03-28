@@ -11,16 +11,16 @@ exit
 #include <array>
 #include <SDL2/SDL.h>
 
+
 const char* src = R"(
 
 @8=|0 3 7 10
 @9=|0 4 7 12
-@2=7 0
-@1=2 4
-:1=v8	w0	u@1	p3	a1	s5	d3	r1	i1.5	t.9		e3
-:2=v4	w0	u4	p-3	a5	s5	d9	r9					e1
-:3=v18	w0	u3	p1	a.1	s9	d3	r1			t.2			f1	q2	c-3
-:4=v12	w1	u5	p-1	a6	s5	d8	r7	i3.5	t.09	e.1
+
+:1=v8	w0	u5	p3	a1	s5	d3	r1	i1.5	t1	e3
+:2=v4	w0	u4	p-3	a5	s6	d12	r9				e1
+:3=v18	w0	u3	p1	a.1	s9	d3	r1			t1		f1	q2	c-3
+:4=v12	w1	u0	p-1	a6	s5	d8	r7	i3.5		e.1
 
 
 I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
@@ -66,6 +66,15 @@ I3Q7O1 g+g+g+g+a+a+a+a+
 @3=-2 -1.5 -1 -0.5 0
 @4=-2 -2 0 0 -2
 
+I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
+
+I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
+
+I2L16Q7< b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
+I3Q4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
+
 I1L2Q7>  e12def4ec4d4 e14def4(o@3)ec4d4 d17 d3(o@4)<g>cde(o@3)dc<g> e16f8g8
 I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
@@ -81,12 +90,11 @@ I3Q4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4
 )";
 
 
-
 enum {
 	MIXRATE			= 48000,
 	VOICE_COUNT		= 32,
 	TRACK_COUNT		= 32,
-	SAMPLES_PER_ROW = 5500, // TODO: remove this
+	SAMPLES_PER_ROW = 5500, // TODO: don't hardcode it
 };
 
 
@@ -100,37 +108,39 @@ struct Param {
 public:
 	Param& operator=(const Env& e) {
 		m_env = &e;
-		m_pos = 0;
+		m_pos = -1;
 		return *this;
 	}
 	Param& operator=(float v) {
 		m_val = v;
 		m_env = nullptr;
+		m_pos = -1;
 		return *this;
 	}
 	operator float() const { return m_val; }
 	void tick() {
+		m_changed = false;
+		if (m_pos == -1) {
+			m_pos = 0;
+			m_changed = true;
+		}
 		if (!m_env || m_env->data.empty()) return;
+		float v = m_val;
 		m_val = m_env->data[m_pos];
+		if (v != m_val) m_changed = true;
 		if (++m_pos >= (int) m_env->data.size()) m_pos = m_env->loop;
 	}
+	bool changed() const { return m_changed; }
 private:
 	const Env*	m_env;
 	int			m_pos;
 	float		m_val;
+	bool		m_changed;
 };
 
 
 static const char* inst_lut = "vwoup" "asdr" "it" "fqc" "e";
 union Inst {
-	Inst() {
-		vol		= 10;
-		attack	= 2;
-		sustain	= 5;
-		decay	= 4;
-		release	= 1;
-		pw		= 5;
-	}
 	std::array<Param, 15> params;
 	struct {
 		Param vol;
@@ -153,10 +163,19 @@ union Inst {
 
 		Param echo;
 	};
+	Inst() {
+		vol		= 10;
+		attack	= 2;
+		sustain	= 5;
+		decay	= 4;
+		release	= 1;
+		pw		= 5;
+	}
 };
 
 
 struct Voice;
+
 
 struct Track {
 	enum { LEN, OCT, QUANT, INST };
@@ -169,13 +188,16 @@ struct Track {
 };
 
 
+typedef std::array<float, 2> Frame;
+
+
 class Echo {
 public:
-	void add(float l, float r) {
-		buffer[m_pos][1] += l;
-		buffer[m_pos][0] += r;
+	void add(const Frame& in ) {
+		buffer[m_pos][1] += in[0];
+		buffer[m_pos][0] += in[1];
 	}
-	void add_mix(float* out) {
+	void add_mix(Frame& out) {
 		m_pos = (m_pos + 1) % buffer.size();
 		out[0] += buffer[m_pos][0];
 		out[1] += buffer[m_pos][1];
@@ -227,16 +249,25 @@ public:
 		m_src = m_pos;
 	}
 
-	void add_mix(float* out) {
+	void add_mix(Frame& out) {
 
 		if (m_sample == 0) tick();
 		if (++m_sample > m_samples_per_row) m_sample = 0;
 
 		for (Voice& v : m_voices) {
-			if (v.sample % 1375 == 0) tick(v);
+			// TODO: don't hardcode tick length
+			if (v.sample % 1375 == 0) {
+				Inst& i = v.inst;
+				for (Param& p : i.params) p.tick();
+				v.attack	= powf(0.5, i.attack) * 0.01;
+				v.sustain	= clamp(i.sustain * 0.1);
+				v.decay		= expf(logf(0.01) / MIXRATE * 10 / i.decay);
+				v.release	= expf(logf(0.01) / MIXRATE * 10 / i.release);
+				if (i.pw.changed()) v.pw = i.pw * 0.1;
+			}
 
 			if (++v.sample > v.length) v.state = Voice::OFF;
-
+			// envelope
 			switch (v.state) {
 			case Voice::ATTACK:
 				v.level += v.attack;
@@ -257,16 +288,16 @@ public:
 			v.pos -= floor(v.pos);
 
 			// pulse sweep
-//			v.pw += v.inst.sweep * 0.001
-//			v.pw -= floor(pw);
+			v.pw += v.inst.sweep * 0.000005;
+			v.pw -= floor(v.pw);
 
-			float pw = v.inst.pw;
+			// wave
 			float amp = 0;
 			switch ((int) v.inst.wave) {
-			case PULSE: amp = v.pos < pw * 0.1 ? -1 : 1; break;
-			case TRIANGLE: amp = v.pos < pw ?
-				2 / pw * v.pos - 1:
-				2 / (pw - 1) * (v.pos - pw) + 1;
+			case PULSE: amp = v.pos < v.pw ? -1 : 1; break;
+			case TRIANGLE: amp = v.pos < v.pw ?
+				2 / v.pw * v.pos - 1:
+				2 / (v.pw - 1) * (v.pos - v.pw) + 1;
 				break;
 			case SINE: amp = sinf(v.pos * M_PI); break;
 			default: break;
@@ -279,16 +310,17 @@ public:
 				amp = v.low;
 			}
 			amp *= v.level * v.inst.vol * 0.1;
-			float buf[2] = {
+			Frame buf = {
 				amp * sqrtf(0.5 - v.inst.pan * 0.05),
 				amp * sqrtf(0.5 + v.inst.pan * 0.05)
 			};
 			out[0] += buf[0];
 			out[1] += buf[1];
 			if (v.inst.echo > 0) {
-				m_echo.add(
-					buf[0] * v.inst.echo * 0.1,
-					buf[1] * v.inst.echo * 0.1);
+				m_echo.add({
+					buf[0] * v.inst.echo * 0.1f,
+					buf[1] * v.inst.echo * 0.1f
+				});
 			}
 		}
 		m_echo.add_mix(out);
@@ -296,14 +328,6 @@ public:
 
 private:
 	enum Wave { PULSE, TRIANGLE, SINE, NOISE };
-
-	void tick(Voice& v) {
-		for (Param& p : v.inst.params) p.tick();
-		v.attack	= powf(0.5, v.inst.attack) * 0.01;
-		v.sustain	= clamp(v.inst.sustain * 0.1);
-		v.decay		= expf(logf(0.01) / MIXRATE * 10 / v.inst.decay);
-		v.release	= expf(logf(0.01) / MIXRATE * 10 / v.inst.release);
-	}
 
 	void tick(Track& t) {
 		if (!t.pos) return;
@@ -515,15 +539,17 @@ private:
 
 Tune tune(src);
 
+
 void cb(void* u, Uint8* stream, int len) {
 	short* buf = (short*) stream;
 	for (; len > 0; len -= 4) {
-		float out[2] = {};
-		tune.add_mix(out);
-		*buf++ = std::max(-32768, std::min<int>(out[0] * 7000, 32767));
-		*buf++ = std::max(-32768, std::min<int>(out[1] * 7000, 32767));
+		Frame f = {};
+		tune.add_mix(f);
+		*buf++ = std::max(-32768, std::min<int>(f[0] * 7000, 32767));
+		*buf++ = std::max(-32768, std::min<int>(f[1] * 7000, 32767));
 	}
 }
+
 
 int main() {
 	SDL_AudioSpec spec = { MIXRATE, AUDIO_S16, 2, 0, 1024, 0, 0, &cb };
