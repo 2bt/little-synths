@@ -17,75 +17,133 @@ const char* src = R"(
 @8=|0 3 7 10
 @9=|0 4 7 12
 
+
+# bass
+@1=1
+@2=9 6 -5 -10 -17 -22 -27
+:0=v23 w@1 o@2 u5 s8 r.3 p-1
+
+# snare
+@3=0 0 3 1 2 3
+@4=2 -5 50 -17 -18 30
+:9=v10 w@3 o@4 u5 s8 r3 p3 e1	#	f1	q.9	c-1.3
+
+
+
 :1=v8	w0	u5	p3	a1	s5	d3	r1	i1.5	t1	e3
 :2=v4	w0	u4	p-3	a5	s6	d12	r9				e1
 :3=v18	w0	u3	p1	a.1	s9	d3	r1			t1		f1	q2	c-3
 :4=v12	w1	u0	p-1	a6	s5	d8	r7	i3.5		e.1
 
+#I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
+#I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
 
-I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>    c20(o@8) r4 <a+8(o@9)
-I3Q7O2 cccccccc
+#I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
+#I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
+
+I1Q6L2   c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
+I2>      c20(o@8) r4 <a+8(o@9)
+I3Q7O2   cccccccc
 
 I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
 I2>    c20(o@8) r4 <a+8(o@9)
 I3Q7O2 cccccccc
 
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
 I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
 I2>    c20(o@8) r4 <a+8(o@9)
 I3Q7O1 g+g+g+g+g+g+g+g+
 
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
 I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
 I2>    c20(o@8) r4 <a+8(o@9)
 I3Q7O1 g+g+g+g+a+a+a+a+
 
 
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
 I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
 I2>    c20(o@8) r4 <a+8(o@9)
 I3Q7O2 cccccccc
 I4Q7   a+30f2
 
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
 I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
 I2>    c20(o@8) r4 <a+8(o@9)
 I3Q7O2 cccccccc
 I4Q7   g26g2a+2g2
 
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
 I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
 I2>    c20(o@8) r4 <a+8(o@9)
 I3Q7O1 g+g+g+g+g+g+g+g+
 I4Q7   >d+3d3<a+2>c18c2<g2f34/r2
 
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
 I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
 I2>    c20(o@8) r4 <a+8(o@9)
 I3Q7O1 g+g+g+g+a+a+a+a+
 
 
-
 # Laxity - Basic
 
-@3=-2 -1.5 -1 -0.5 0
-@4=-2 -2 0 0 -2
+@5=-2 -1.5 -1 -0.5 0
+@6=-2 -2 0 0 -2
 
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
 I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
 I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
 I2L16Q7< b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
 I3Q4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
 
-I1L2Q7>  e12def4ec4d4 e14def4(o@3)ec4d4 d17 d3(o@4)<g>cde(o@3)dc<g> e16f8g8
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
+I1L2Q7>  e12def4ec4d4 e14def4(o@5)ec4d4 d17 d3(o@6)<g>cde(o@5)dc<g> e16f8g8
 I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 
-I1L2Q7>  e12def4ec4d4 e14def4(o@3)ec4d4 d17 d3(o@4)<g>cde(o@3)dc<g> e16f8g8
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
+I1L2Q7>  e12def4ec4d4 e14def4(o@5)ec4d4 d17 d3(o@6)<g>cde(o@5)dc<g> e16f8g8
 I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
 I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
 
-I1L2Q7>  g10>d(o@3)<b>c6<b3r1b4a3r1a3(o@3)g3ad+1d1c6r8Q8d+8Q7e16g+4a4b8b1a1Q8g8Q7arg4a
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
+I1L2Q7>  g10>d(o@5)<b>c6<b3r1b4a3r1a3(o@5)g3ad+1d1c6r8Q8d+8Q7e16g+4a4b8b1a1Q8g8Q7arg4a
 I2L16Q7< b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
 I3Q4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
+
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
+I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
+
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
+I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
+I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
+
+I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
+I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
+I2L16Q7< b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
+I3Q4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
+
+
 
 )";
 
@@ -225,6 +283,7 @@ struct Voice {
 	float	high;
 	float	band;
 	float	low;
+	float	noise;
 
 	// param cache
 	float	attack;
@@ -281,10 +340,12 @@ public:
 				if (v.level <= 0.01) continue;
 				break;
 			}
+
+			// osc
 			float pitch = v.pitch + v.inst.offset;
-			// vibrato
 			pitch += sinf(v.sample * 0.0008) * v.inst.vib * 0.1 * (v.sample > 20000);
-			v.pos += exp2f((pitch - 57) / 12) * 440 / MIXRATE;
+			float speed = exp2f((pitch - 57) / 12) * 440 / MIXRATE;
+			v.pos += speed;
 			v.pos -= floor(v.pos);
 
 			// pulse sweep
@@ -300,6 +361,10 @@ public:
 				2 / (v.pw - 1) * (v.pos - v.pw) + 1;
 				break;
 			case SINE: amp = sinf(v.pos * M_PI); break;
+			case NOISE:
+				if (v.pos < speed) v.noise = rand() * 2.0 / RAND_MAX - 1;
+				amp = v.noise;
+				break;
 			default: break;
 			}
 			if (v.inst.filter) {
@@ -327,7 +392,7 @@ public:
 	}
 
 private:
-	enum Wave { PULSE, TRIANGLE, SINE, NOISE };
+	enum { PULSE, TRIANGLE, SINE, NOISE };
 
 	void tick(Track& t) {
 		if (!t.pos) return;
