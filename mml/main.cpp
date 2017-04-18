@@ -35,59 +35,29 @@ const char* src = R"(
 :3=v18	w0	u3	p1	a.1	s9	d3	r1			t1		f1	q2	c-3
 :4=v12	w1	u0	p-1	a6	s5	d8	r7	i3.5		e.1
 
-#I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
-#I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
+I1Q6L2   c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1> c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>      [c20(o@8) r4 <a+8(o@9)>]2
+I3Q7O2   cccccccc cccccccc
 
-#I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
-#I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa arrrrrrararrrrrr arrrrrrarrarrraa
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
+I1Q6L2   c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1> c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>      [c20(o@8) r4 <a+8(o@9)>]2
+I3Q7O2   <g+g+g+g+g+g+g+g+ g+g+g+g+a+a+a+a+
 
-I1Q6L2   c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>      c20(o@8) r4 <a+8(o@9)
-I3Q7O2   cccccccc
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa arrrrrrararrrrrr arrrrrrarrarrraa
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
+I1Q6L2   c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1> c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>      [c20(o@8) r4 <a+8(o@9)>]2
+I3Q7O2   cccccccc cccccccc
+I4Q7     a+30f2 g26g2a+2g2
 
-I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>    c20(o@8) r4 <a+8(o@9)
-I3Q7O2 cccccccc
-
-I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
-I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
-I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>    c20(o@8) r4 <a+8(o@9)
-I3Q7O1 g+g+g+g+g+g+g+g+
-
-I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
-I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
-I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>    c20(o@8) r4 <a+8(o@9)
-I3Q7O1 g+g+g+g+a+a+a+a+
-
-
-I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
-I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
-I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>    c20(o@8) r4 <a+8(o@9)
-I3Q7O2 cccccccc
-I4Q7   a+30f2
-
-I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
-I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
-I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>    c20(o@8) r4 <a+8(o@9)
-I3Q7O2 cccccccc
-I4Q7   g26g2a+2g2
-
-I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
-I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr
-I1Q6L2 c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1
-I2>    c20(o@8) r4 <a+8(o@9)
-I3Q7O1 g+g+g+g+g+g+g+g+
-I4Q7   >d+3d3<a+2>c18c2<g2f34/r2
-
-I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa
-I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
-I1Q6L2 c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
-I2>    c20(o@8) r4 <a+8(o@9)
-I3Q7O1 g+g+g+g+a+a+a+a+
+I0Q8L1O2 arrrrrrararrrrrr arrrrrrarrarrraa arrrrrrararrrrrr arrrrrrarrarrrrr
+I9Q8L1O4 rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr rrrrcrrrrrrrcrrr rrrrcrrrrcrrcrrr
+I1Q6L2   c<c>d<c>d+<c1c1>d<c>c<c>f<c>d+<c>d<c1c1> c<c>d<c>d+<c1c1>f<c>d+<c>d<c>c<ca+c1c1
+I2>      [c20(o@8) r4 <a+8(o@9)>]2
+I3Q7O2   <g+g+g+g+g+g+g+g+ g+g+g+g+a+a+a+a+
+I4Q7     >d+3d3<a+2>c18c2<g2f34/r2
 
 
 # Laxity - Basic
@@ -127,22 +97,6 @@ I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
 I1L2Q7>  g10>d(o@5)<b>c6<b3r1b4a3r1a3(o@5)g3ad+1d1c6r8Q8d+8Q7e16g+4a4b8b1a1Q8g8Q7arg4a
 I2L16Q7< b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
 I3Q4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
-
-I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
-I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
-I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
-I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
-
-I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
-I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
-I2L16Q7< g/>c/e<g+/>c/f<g/>c/e <g+/>c/f< a+/>c/f<a/>c/f<g/>c/eL8<f/a/>c<g/b/>d
-I3Q4O2L2 cc4cr6c <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g >d4d4r>d4<d cc4cr6c <f4f4r>g4<g
-
-I0Q4L2O2 [arrarrrrararrrrr]3 arrarrrrararrrrr
-I9Q4L2O4 [rrrrcrrrrrrrcrrr]3 rrrrcrrrrrrrcrcc
-I2L16Q7< b/>d/g<g/>c/e<a/>c/f<g+/>c/f<g/>c/e<f+/>c/e<f/>c/e<g/b/>d
-I3Q4O2L2 ee4er6e <a4a4r>a4<a >dd4dr6d <a+4a+4r>a+4<a+ aa4ar6a g+4g+4r>g+4<g+ gg4gr6g g4g4r>g4<g
-
 
 
 )";
