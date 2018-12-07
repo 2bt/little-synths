@@ -1,5 +1,5 @@
 #if 0 // vim: tabstop=4 shiftwidth=4 noexpandtab
-g++-6 -Wall -std=c++11 -O2 -xc++ $0 -lSDL2 && ./a.out
+g++ -Wall -std=c++11 -O2 -xc++ $0 -lSDL2 && ./a.out
 rm -f a.out
 exit
 #endif
