@@ -8,7 +8,7 @@ class Parser {
 public:
     Parser(char const* src) : m_pos(src) {}
 
-    Tune parse_tune();
+    void parse_tune(Tune& tune);
 
 private:
     char chr() const { return *m_pos; }
@@ -23,13 +23,22 @@ private:
     void skip_space(bool newline=false);
 
     std::string parse_name();
+    uint32_t    parse_uint();
     Env         parse_env();
-    Inst        parse_inst();
+    void        parse_inst(Inst& inst);
+    void        parse_track(Tune& tune, int nr);
 
     char const*                 m_pos;
     int                         m_line = 1;
     std::map<std::string, Env>  m_envs;
     std::map<std::string, Inst> m_insts;
+
+    struct TrackState {
+        int   octave = 5;
+        int   length = 1;
+        Inst* inst   = nullptr;
+    };
+    std::array<TrackState, CHANNEL_COUNT> m_track_states;
 };
 
 

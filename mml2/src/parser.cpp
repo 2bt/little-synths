@@ -29,6 +29,17 @@ std::string Parser::parse_name() {
     return name;
 }
 
+uint32_t Parser::parse_uint() {
+    if (!isdigit(chr())) {
+        printf("%d: error: read '%c' but expected digit\n", m_line, chr());
+        exit(1);
+    }
+    uint32_t n = 0;
+    do n = n * 10 + next_chr() - '0';
+    while (isdigit(chr()));
+    return n;
+}
+
 
 Env Parser::parse_env() {
     // alias
@@ -82,8 +93,7 @@ Env Parser::parse_env() {
 }
 
 
-Inst Parser::parse_inst() {
-    Inst inst;
+void Parser::parse_inst(Inst& inst) {
     if (chr() == '$') {
         next_chr();
         std::string name = parse_name();
@@ -130,17 +140,23 @@ Inst Parser::parse_inst() {
         skip_space(true);
     }
     next_chr();
-
-    return inst;
 }
 
+void Parser::parse_track(Tune& tune, int nr) {
+    Track& track = tune.tracks[nr];
+    TrackState& state = m_track_states[nr];
+    for (;;) {
 
-Tune Parser::parse_tune() {
-    Tune tune;
+
+    }
+}
+
+void Parser:: parse_tune(Tune& tune) {
     while (chr()) {
         skip_space(true);
-        char c = next_chr();
-        if (c == '@') {
+        printf("%c\n", chr());
+        if (chr() == '@') {
+            next_chr();
             std::string name = parse_name();
             skip_space();
             consume('=');
@@ -150,8 +166,6 @@ Tune Parser::parse_tune() {
                 printf("%d: error: env name '%s' already assigned\n", m_line, name.c_str());
                 exit(1);
             }
-            if (chr() == '\n') next_chr();
-            else consume(';');
 
             // print env
             printf("@%s =", name.c_str());
@@ -160,24 +174,38 @@ Tune Parser::parse_tune() {
             for (auto d : e.data) printf(" %s%s%g", i++ == e.loop ? "| " : "", "+" + !d.relative, d.value);
             printf("\n");
         }
-        else if (c == '$') {
+        else if (chr() == '$') {
+            next_chr();
             std::string name = parse_name();
             skip_space();
             consume('=');
             skip_space();
-            auto p = m_insts.insert({ name, parse_inst() });
+            Inst inst;
+            parse_inst(inst);
+            auto p = m_insts.insert({ name, std::move(inst) });
             if (!p.second) {
                 printf("%d: error: inst name '%s' already assigned\n", m_line, name.c_str());
                 exit(1);
             }
-            if (chr() == '\n') next_chr();
-            else consume(';');
+        }
+        else if (isdigit(chr())) {
+            int nr = parse_uint();
+            printf("nr = %d\n", nr);
+            if (nr >= CHANNEL_COUNT) {
+                printf("%d: error: track number too high\n", m_line);
+                exit(1);
+            }
+            skip_space();
+            consume(':');
+            skip_space();
+            parse_track(tune, nr);
         }
         else {
-            printf("%d: error: invalid char '%c'\n", m_line, c);
+            printf("%d: error: invalid char '%c'\n", m_line, chr());
             exit(1);
         }
+        if (chr() == '\n') next_chr();
+        else consume(';');
     }
-    return tune;
 }
 

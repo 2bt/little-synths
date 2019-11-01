@@ -27,7 +27,7 @@ int main(int argc, const char** argv) {
     };
 
     Parser parser(content.c_str());
-    tune = parser.parse_tune();
+    parser.parse_tune(tune);
 
     SDL_AudioSpec spec = {
         MIXRATE, AUDIO_S16, 2, 0, 1024, 0, 0,
