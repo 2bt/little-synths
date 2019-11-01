@@ -44,7 +44,7 @@ private:
 };
 
 
-struct Track {
+struct Channel {
     enum { LEN, OCT, QUANT, INST };
     const char*        pos = nullptr;
     const char*        loop_pos;
@@ -86,7 +86,7 @@ private:
 
     // XXX: filter, echo, ...
 
-    Tune const&                    m_tune;
-    std::array<Track, VOICE_COUNT> m_tracks;
+    Tune const&                      m_tune;
+    std::array<Track, CHANNEL_COUNT> m_channels;
 };
 

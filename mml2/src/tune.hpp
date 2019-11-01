@@ -6,9 +6,9 @@
 
 
 enum {
-    MIXRATE      = 44100,
-    FRAME_LENGTH = MIXRATE / 60,
-    VOICE_COUNT  = 8,
+    MIXRATE       = 44100,
+    FRAME_LENGTH  = MIXRATE / 60,
+    CHANNEL_COUNT = 8,
 };
 
 
@@ -42,7 +42,18 @@ struct Inst {
 };
 
 
-struct Tune {
+struct Track {
+    struct Event {
+        int note;
+        int length;
+        int inst_nr;
+    };
+    std::vector<Event> events;
+};
 
+
+struct Tune {
+    std::vector<Inst>                insts;
+    std::array<Track, CHANNEL_COUNT> tracks;
 };
 

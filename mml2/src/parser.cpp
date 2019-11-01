@@ -1,5 +1,30 @@
 #include "parser.hpp"
 #include <cstring>
+#include <algorithm>
+
+
+namespace {
+
+int find(const char* str, char c) {
+    if (c == '\0') return -1;
+    char const* p = strchr(str, c);
+    return p ? p - str : -1;
+}
+
+
+} // namespace
+
+bool operator==(Env::Datum const& a, Env::Datum const& b) {
+    return a.relative == b.relative && a.value == b.value;
+}
+
+bool operator==(Env const& a, Env const& b) {
+    return a.loop == b.loop && a.data == b.data;
+}
+bool operator==(Inst const& a, Inst const& b) {
+    return a.params == b.params;
+}
+
 
 void Parser::consume(char c) {
     if (chr() != c) {
@@ -104,6 +129,7 @@ void Parser::parse_inst(Inst& inst) {
             exit(1);
         }
         inst = it->second;
+        if (chr() != '{') return;
     }
 
     consume('{');
@@ -144,17 +170,65 @@ void Parser::parse_inst(Inst& inst) {
 
 void Parser::parse_track(Tune& tune, int nr) {
     Track& track = tune.tracks[nr];
-    TrackState& state = m_track_states[nr];
+    int   octave = 5;
+    int   length = 1;
+    Inst  inst;
+
     for (;;) {
+        skip_space();
 
+        // instrument
+        if (chr() == '$' || chr() == '{') {
+            parse_inst(inst);
+            continue;
+        }
 
+        // octave
+        if (chr() == 'o') {
+            next_chr();
+            octave = parse_uint();
+            continue;
+        }
+        if (chr() == '>' || chr() == '<') {
+            octave += next_chr() == '+' ? 1 : -1;
+            continue;
+        }
+
+        // rest
+        if (chr() == 'r') {
+            next_chr();
+            if (isdigit(chr())) length = parse_uint();
+            track.events.push_back({ -1, length, -1 });
+            continue;
+        }
+
+        // note
+        int index = find("ccddeffggaab", chr());
+        if (index >= 0) {
+            next_chr();
+            int note = index + 12 * octave;
+            while (chr() == '+' || chr() == '-') note += next_chr() == '+' ? 1 : -1;
+            if (isdigit(chr())) length = parse_uint();
+
+            int inst_nr = tune.insts.size();
+            auto it = std::find(tune.insts.begin(), tune.insts.begin(), inst);
+            if (it != tune.insts.begin()) {
+                inst_nr = it - tune.insts.begin();
+            }
+            else {
+                tune.insts.push_back(inst);
+            }
+
+            track.events.push_back({ note, length, inst_nr });
+            continue;
+        }
+        return;
     }
 }
 
 void Parser:: parse_tune(Tune& tune) {
     while (chr()) {
         skip_space(true);
-        printf("%c\n", chr());
         if (chr() == '@') {
             next_chr();
             std::string name = parse_name();
@@ -190,7 +264,6 @@ void Parser:: parse_tune(Tune& tune) {
         }
         else if (isdigit(chr())) {
             int nr = parse_uint();
-            printf("nr = %d\n", nr);
             if (nr >= CHANNEL_COUNT) {
                 printf("%d: error: track number too high\n", m_line);
                 exit(1);
