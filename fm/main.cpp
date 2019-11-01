@@ -73,15 +73,15 @@ struct Operator {
 
 
 // change numbers as you please
-Operator::Settings opSet1 = { 0.02,   0.999997,  0.5, 0.9993, 1,   1 };
-Operator::Settings opSet2 = { 0.002,  0.99999,   0.7, 0.9999, 0.3, 3.01 };
-Operator::Settings opSet3 = { 0.0005, 0.9999,    0.5, 0.9999, 1,   5 };
+//Operator::Settings opSet1 = { 0.02,   0.999997,  0.5, 0.9993, 1,   1 };
+//Operator::Settings opSet2 = { 0.002,  0.99999,   0.7, 0.9999, 0.3, 3.01 };
+//Operator::Settings opSet3 = { 0.0005, 0.9999,    0.5, 0.9999, 1,   5 };
 
-/*
+
 Operator::Settings opSet1 = { 0.02,   0.999997,  0.5, 0.9993, 1,   1 };
 Operator::Settings opSet2 = { 0.0005,  0.99999,   0.7, 0.9999, 0.6, 1.01 };
 Operator::Settings opSet3 = { 0.0003, 0.9999,    0.5, 0.9999, 0.4,   2.99 };
-*/
+
 
 struct Voice {
 	int note;
@@ -175,7 +175,8 @@ int main(int argc, char **argv) {
 
 	keyboard_init();
 	static SDL_AudioSpec spec = { MIXRATE, AUDIO_S16SYS,
-		2, 0, 1024, 0, 0, &audio_callback, NULL
+	//	2, 0, 1024, 0, 0, &audio_callback, NULL
+		2, 0, 512, 0, 0, &audio_callback, NULL
 	};
 	SDL_OpenAudio(&spec, &spec);
 	SDL_PauseAudio(0);

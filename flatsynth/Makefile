@@ -1,4 +1,4 @@
 all:
-	g++ -lm -lSDL -s -Os main.cpp -o flatsynth
+	g++ -s -Os main.cpp -o flatsynth -lm -lSDL
 clean:
 	rm -f flatsynth
