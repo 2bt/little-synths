@@ -11,13 +11,12 @@ int find(const char* str, char c) {
     return p ? p - str : -1;
 }
 
-
 } // namespace
+
 
 bool operator==(Env::Datum const& a, Env::Datum const& b) {
     return a.relative == b.relative && a.value == b.value;
 }
-
 bool operator==(Env const& a, Env const& b) {
     return a.loop == b.loop && a.data == b.data;
 }
@@ -64,7 +63,6 @@ uint32_t Parser::parse_uint() {
     while (isdigit(chr()));
     return n;
 }
-
 
 Env Parser::parse_env() {
     // alias
@@ -116,7 +114,6 @@ Env Parser::parse_env() {
     if (env.loop == -1) env.loop = env.data.size() - 1;
     return env;
 }
-
 
 void Parser::parse_inst(Inst& inst) {
     if (chr() == '$') {
@@ -170,8 +167,8 @@ void Parser::parse_inst(Inst& inst) {
 
 void Parser::parse_track(Tune& tune, int nr) {
     Track& track = tune.tracks[nr];
-    int   octave = 5;
-    int   length = 1;
+    int   octave = 4;
+    int   length = 4;
     Inst  inst;
 
     for (;;) {
@@ -190,7 +187,7 @@ void Parser::parse_track(Tune& tune, int nr) {
             continue;
         }
         if (chr() == '>' || chr() == '<') {
-            octave += next_chr() == '+' ? 1 : -1;
+            octave += next_chr() == '>' ? 1 : -1;
             continue;
         }
 
@@ -226,7 +223,7 @@ void Parser::parse_track(Tune& tune, int nr) {
     }
 }
 
-void Parser:: parse_tune(Tune& tune) {
+void Parser::parse_tune(Tune& tune) {
     while (chr()) {
         skip_space(true);
         if (chr() == '@') {
@@ -281,4 +278,3 @@ void Parser:: parse_tune(Tune& tune) {
         else consume(';');
     }
 }
-

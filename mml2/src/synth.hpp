@@ -3,9 +3,6 @@
 #include "tune.hpp"
 
 
-template <class T>
-T clamp(T const& v, T const& min=0, T const& max=1) { return std::max(min, std::min(max, v)); }
-
 struct Param {
 public:
     Param& operator=(const Env& e) {
@@ -45,28 +42,20 @@ private:
 
 
 struct Channel {
-    enum { LEN, OCT, QUANT, INST };
-    const char*        pos = nullptr;
-    const char*        loop_pos;
-    int                loop_count;
-//    std::array<int, 4> state;
-    int                wait;
+    int         pos  = 0;
+    int         wait = 0;
+    int         note = -1;
+    Inst const* inst;
 
 
     // voice stuff
+    float  phase;
+
     enum State { OFF, HOLD, ATTACK };
     State  state = OFF;
-    Inst   inst;
-    float  pitch;
     int    length;
     int    sample;
     float  level;
-    float  phase;
-
-    float  high;
-    float  band;
-    float  low;
-    float  noise;
 
     // param cache
     float  attack;
@@ -74,7 +63,13 @@ struct Channel {
     float  decay;
     float  release;
 
-    float  pw;
+    float  pulsewidth;
+};
+
+struct Filter {
+    float  high;
+    float  band;
+    float  low;
 };
 
 
@@ -83,10 +78,15 @@ public:
     Synth(Tune const& tune) : m_tune(tune) {}
     void mix(int16_t* buffer, int len);
 private:
+    void tick();
+
+    int m_sample = 0;
 
     // XXX: filter, echo, ...
+    Filter                             m_filter;
 
-    Tune const&                      m_tune;
-    std::array<Track, CHANNEL_COUNT> m_channels;
+
+    Tune const&                        m_tune;
+    std::array<Channel, CHANNEL_COUNT> m_channels;
 };
 
