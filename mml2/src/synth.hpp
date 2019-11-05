@@ -3,33 +3,26 @@
 #include "tune.hpp"
 
 
-struct Param {
+class Param {
 public:
-    void set(const Env& e) {
-        m_val = 0;
-        m_env = &e;
+    void set(Env const* e) {
+        m_env = e;
         m_pos = -1;
     }
     float value() const { return m_val; }
     void tick() {
-        m_changed = false;
         if (m_pos == -1) {
             m_pos = 0;
-            m_changed = true;
         }
         if (!m_env || m_env->data.empty()) return;
-        float v = m_val;
         if (m_env->data[m_pos].relative) m_val += m_env->data[m_pos].value;
         else                             m_val =  m_env->data[m_pos].value;
-        if (v != m_val) m_changed = true;
-        if (++m_pos >= (int) m_env->data.size()) m_pos = m_env->loop;
+        if (++m_pos > (int) m_env->data.size()) m_pos = m_env->loop;
     }
-    bool changed() const { return m_changed; }
 private:
-    const Env* m_env;
+    Env const* m_env;
     int        m_pos;
-    float      m_val;
-    bool       m_changed;
+    float      m_val = 0;
 };
 
 
@@ -49,6 +42,7 @@ struct Channel {
     float  decay;
     float  release;
     float  pulsewidth;
+    float  next_pulsewidth;
 
 
     // voice stuff

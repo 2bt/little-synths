@@ -25,7 +25,7 @@ void Synth::tick() {
                 if (e.inst_nr >= 0) chan.inst = &m_tune.insts[e.inst_nr];
                 if (chan.inst) {
                     for (int i = 0; i < Inst::PARAM_COUNT; ++i) {
-                        chan.params[i].set(chan.inst->params[i]);
+                        chan.params[i].set(&chan.inst->params[i]);
                     }
                 }
             }
@@ -37,8 +37,12 @@ void Synth::tick() {
 
     for (Channel& chan : m_channels) {
         for (Param& p : chan.params) p.tick();
-        chan.wave       = (int) chan.params[Inst::P_WAVE].value();
-        chan.pulsewidth = clamp(chan.params[Inst::P_PULSEWIDTH].value(), 0.0f, 1.0f);
+        // param cache
+        chan.wave = (int) chan.params[Inst::P_WAVE].value();
+
+        float pw = chan.params[Inst::P_PULSEWIDTH].value();
+        pw -= (int) pw;
+        chan.next_pulsewidth = 0.5f + std::abs(pw - 0.5f) * 0.97f;
     }
 }
 
@@ -47,7 +51,7 @@ bool Synth::done() const {
     for (int i = 0; i < CHANNEL_COUNT; ++i) {
         Channel const& chan = m_channels[i];
         Track const& track = m_tune.tracks[i];
-        if (chan.pos < track.events.size() || chan.wait > 0) return false;
+        if (chan.pos < (int) track.events.size() || chan.wait > 0) return false;
     }
     return true;
 }
@@ -71,7 +75,7 @@ void Synth::mix(int16_t* buffer, int len) {
             float speed = std::exp2(pitch / 12.0f) * 440 / MIXRATE;
             chan.phase += speed;
             chan.phase -= (int) chan.phase;
-
+            if (chan.phase < speed) chan.pulsewidth = chan.next_pulsewidth;
 
             float amp = 0;
             switch (chan.wave) {
