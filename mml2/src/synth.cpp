@@ -58,15 +58,11 @@ bool Synth::done() const {
 
 
 void Synth::mix(int16_t* buffer, int len) {
-
     for (int i = 0; i < len; ++i) {
-
         if (m_sample == 0) tick();
         if (++m_sample >= FRAME_LENGTH) m_sample = 0;
 
-
         float f[2] = { 0, 0 };
-
 
         for (Channel& chan : m_channels) {
             if (chan.note == -1) continue;
@@ -79,10 +75,28 @@ void Synth::mix(int16_t* buffer, int len) {
 
             float amp = 0;
             switch (chan.wave) {
-            case 0:
+            case 0: {
+                int n = int(chan.phase * 32);
+                if (chan.noise_phase != n) {
+                    chan.noise_phase = n;
+                    uint32_t s = chan.shift;
+                    chan.shift = s = (s << 1) | (((s >> 22) ^ (s >> 17)) & 1);
+                    uint8_t a =  ((s & 0x400000) >> 11) |
+                                 ((s & 0x100000) >> 10) |
+                                 ((s & 0x010000) >>  7) |
+                                 ((s & 0x002000) >>  5) |
+                                 ((s & 0x000800) >>  4) |
+                                 ((s & 0x000080) >>  1) |
+                                 ((s & 0x000010) <<  1) |
+                                 ((s & 0x000004) <<  2);
+                    chan.noise = a / 128.0f - 1;
+                }
+                amp = chan.noise;
 //                if (chan.phase < speed) chan.phase = rand() * 2.0 / RAND_MAX - 1;
 //                amp = v.noise;
                 break;
+            }
+
             case 1: amp = chan.phase < chan.pulsewidth ? -1 : 1; break;
             case 2: amp = chan.phase * 2 - 1; break;
             case 3: amp = chan.phase < 0.5 ? 4 * chan.phase - 1 : -4 * (chan.phase - 0.5) + 1; break;

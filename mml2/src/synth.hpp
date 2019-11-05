@@ -36,22 +36,25 @@ struct Channel {
     std::array<Param, Inst::PARAM_COUNT> params;
 
     // param cache
-    int    wave;
+    int    wave            = 0;
+    float  next_pulsewidth = 0;
+    float  pulsewidth      = 0;
+
     float  attack;
     float  sustain;
     float  decay;
     float  release;
-    float  pulsewidth;
-    float  next_pulsewidth;
 
 
     // voice stuff
-    float  phase;
     enum State { OFF, HOLD, ATTACK };
-    State  state = OFF;
-    int    length;
-    int    sample;
-    float  level;
+    float    noise;
+    uint32_t shift = 0x7ffff8;
+    int      noise_phase;
+    float    phase;
+    State    state = OFF;
+    float    level;
+    int      length;
 };
 
 struct Filter {

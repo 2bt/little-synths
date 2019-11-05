@@ -142,7 +142,6 @@ void Parser::parse_inst(Inst& inst) {
             { "decay",      Inst::P_DECAY      },
             { "sustain",    Inst::P_SUSTAIN    },
             { "release",    Inst::P_RELEASE    },
-            { "gate",       Inst::P_GATE       },
             { "volume",     Inst::P_VOLUME     },
             { "panning",    Inst::P_PANNING    },
             { "wave",       Inst::P_WAVE       },
@@ -224,8 +223,8 @@ void Parser::parse_track(Tune& tune, int nr) {
 }
 
 void Parser::parse_tune(Tune& tune) {
+    skip_space(true);
     while (chr()) {
-        skip_space(true);
         if (chr() == '@') {
             next_chr();
             std::string name = parse_name();
@@ -276,5 +275,6 @@ void Parser::parse_tune(Tune& tune) {
         }
         if (chr() == '\n') next_chr();
         else consume(';');
+        skip_space(true);
     }
 }

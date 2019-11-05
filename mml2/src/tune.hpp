@@ -28,7 +28,6 @@ struct Inst {
         P_DECAY,
         P_SUSTAIN,
         P_RELEASE,
-        P_GATE,
         P_VOLUME,
         P_PANNING,
         P_WAVE,
