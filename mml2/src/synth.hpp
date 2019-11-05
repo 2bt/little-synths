@@ -17,7 +17,7 @@ public:
         if (!m_env || m_env->data.empty()) return;
         if (m_env->data[m_pos].relative) m_val += m_env->data[m_pos].value;
         else                             m_val =  m_env->data[m_pos].value;
-        if (++m_pos > (int) m_env->data.size()) m_pos = m_env->loop;
+        if (++m_pos >= (int) m_env->data.size()) m_pos = m_env->loop;
     }
 private:
     Env const* m_env;
