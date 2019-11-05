@@ -8,4 +8,7 @@ file(GLOB SRC "src/*.hpp" "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SRC})
 
-target_link_libraries(${PROJECT_NAME} SDL2)
+target_link_libraries(${PROJECT_NAME}
+    SDL2
+    sndfile
+    )

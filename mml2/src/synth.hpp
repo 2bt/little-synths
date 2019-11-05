@@ -5,20 +5,12 @@
 
 struct Param {
 public:
-    Param& operator=(const Env& e) {
+    void set(const Env& e) {
         m_val = 0;
         m_env = &e;
         m_pos = -1;
-        return *this;
     }
-    Param& operator=(float v) {
-        m_val = v;
-        m_env = nullptr;
-        m_pos = -1;
-        return *this;
-    }
-    operator int()   const { return m_val; }
-    operator float() const { return m_val; }
+    float value() const { return m_val; }
     void tick() {
         m_changed = false;
         if (m_pos == -1) {
@@ -47,23 +39,25 @@ struct Channel {
     int         note = -1;
     Inst const* inst;
 
+    // params
+    std::array<Param, Inst::PARAM_COUNT> params;
+
+    // param cache
+    int    wave;
+    float  attack;
+    float  sustain;
+    float  decay;
+    float  release;
+    float  pulsewidth;
+
 
     // voice stuff
     float  phase;
-
     enum State { OFF, HOLD, ATTACK };
     State  state = OFF;
     int    length;
     int    sample;
     float  level;
-
-    // param cache
-    float  attack;
-    float  sustain;
-    float  decay;
-    float  release;
-
-    float  pulsewidth;
 };
 
 struct Filter {
@@ -77,10 +71,12 @@ class Synth {
 public:
     Synth(Tune const& tune) : m_tune(tune) {}
     void mix(int16_t* buffer, int len);
+    bool done() const;
 private:
     void tick();
 
     int m_sample = 0;
+    int m_frame  = 0;
 
     // XXX: filter, echo, ...
     Filter                             m_filter;

@@ -8,7 +8,7 @@
 enum {
     MIXRATE       = 44100,
     FRAME_LENGTH  = MIXRATE / 60,
-    CHANNEL_COUNT = 8,
+    CHANNEL_COUNT = 2,
 };
 
 
@@ -31,7 +31,7 @@ struct Inst {
         P_GATE,
         P_VOLUME,
         P_PANNING,
-        P_WAVEFORM,
+        P_WAVE,
         P_PULSEWIDTH,
         P_PITCH,
 

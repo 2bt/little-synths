@@ -145,7 +145,7 @@ void Parser::parse_inst(Inst& inst) {
             { "gate",       Inst::P_GATE       },
             { "volume",     Inst::P_VOLUME     },
             { "panning",    Inst::P_PANNING    },
-            { "waveform",   Inst::P_WAVEFORM   },
+            { "wave",       Inst::P_WAVE       },
             { "pulsewidth", Inst::P_PULSEWIDTH },
             { "pitch",      Inst::P_PITCH      },
         };
