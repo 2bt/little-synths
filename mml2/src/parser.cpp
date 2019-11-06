@@ -65,19 +65,6 @@ uint32_t Parser::parse_uint() {
 }
 
 Env Parser::parse_env() {
-    // alias
-    if (chr() == '@') {
-        next_chr();
-        std::string name = parse_name();
-        skip_space();
-        auto it = m_envs.find(name);
-        if (it == m_envs.end()) {
-            printf("%d: error: invalid env reference '%s'\n", m_line, name.c_str());
-            exit(1);
-        }
-        return it->second;
-    }
-
     Env env;
     env.loop = -1;
     for (;;) {
@@ -213,19 +200,7 @@ void Parser::parse_track(Tune& tune, int nr) {
 void Parser::parse_tune(Tune& tune) {
     skip_space(true);
     while (chr()) {
-        if (chr() == '@') {
-            next_chr();
-            std::string name = parse_name();
-            skip_space();
-            consume('=');
-            skip_space();
-            auto p = m_envs.insert({ name, parse_env() });
-            if (!p.second) {
-                printf("%d: error: env name '%s' already assigned\n", m_line, name.c_str());
-                exit(1);
-            }
-        }
-        else if (chr() == '$') {
+        if (chr() == '$') {
             next_chr();
             std::string name = parse_name();
             skip_space();

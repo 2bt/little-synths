@@ -30,7 +30,6 @@ private:
 
     char const*                 m_pos;
     int                         m_line = 1;
-    std::map<std::string, Env>  m_envs;
     std::map<std::string, Inst> m_insts;
 };
 
