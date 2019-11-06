@@ -1,0 +1,20 @@
+$bass = {
+	pulsewidth = 0.2 | +0.01
+	wave       = 1
+}
+
+$kick = $bass{
+	pulsewidth = 0.5 0.5 0.5 | +0.01
+	wave       = 0 1
+	pitch      = 30 12 4 0
+}
+
+$beep = {
+	wave = 1
+	pulsewidth = 0.05 | +-0.005
+}
+
+0: o1g+4$kick>g+2$bass<g+rrrg+4$kick>g+2$bass<g+rrg+>g+<g+
+0: o1g4$kick>g2$bass<gr>g4c$kick>c2$bass<crr>c<<a+>a+
+
+1: g+$beep{pitch=|0 0 7 7} rg+rg+rg+r>d{pitch=|0 0 5 5}rdrd+{pitch=|0 0 9 9}rd+r
