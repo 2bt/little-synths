@@ -36,7 +36,8 @@ struct Channel {
     std::array<Param, Inst::PARAM_COUNT> params;
 
     // param cache
-    int    wave            = 0;
+    enum Wave { W_NOISE, W_PULSE, W_SAW, W_TRIANGLE, W_SINE };
+    Wave   wave            = W_NOISE;
     float  next_pulsewidth = 0;
     float  pulsewidth      = 0;
 
@@ -47,12 +48,12 @@ struct Channel {
 
 
     // voice stuff
-    enum State { OFF, HOLD, ATTACK };
+    enum State { S_OFF, S_HOLD, S_ATTACK };
     float    noise;
     uint32_t shift = 0x7ffff8;
     int      noise_phase;
     float    phase;
-    State    state = OFF;
+    State    state = S_OFF;
     float    level;
     int      length;
 };

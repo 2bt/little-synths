@@ -17,6 +17,7 @@ void Synth::tick() {
 
             while (chan.wait == 0) {
                 Track::Event e = { -1, 1, -1 };
+                if (chan.pos >= (int) track.events.size()) chan.pos = 0;
                 if (chan.pos < (int) track.events.size()) e = track.events[chan.pos++];
 
                 chan.wait = e.length;
@@ -38,11 +39,10 @@ void Synth::tick() {
     for (Channel& chan : m_channels) {
         for (Param& p : chan.params) p.tick();
         // param cache
-        chan.wave = (int) chan.params[Inst::P_WAVE].value();
+        chan.wave = (Channel::Wave) chan.params[Inst::P_WAVE].value();
 
         float pw = chan.params[Inst::P_PULSEWIDTH].value();
-        pw -= (int) pw;
-        chan.next_pulsewidth = 0.5f + std::abs(pw - 0.5f) * 0.97f;
+        chan.next_pulsewidth = 0.5f + std::abs(pw - std::floor(pw) - 0.5f) * 0.97f;
     }
 }
 
@@ -75,7 +75,7 @@ void Synth::mix(int16_t* buffer, int len) {
 
             float amp = 0;
             switch (chan.wave) {
-            case 0: {
+            case Channel::W_NOISE: {
                 int n = int(chan.phase * 32);
                 if (chan.noise_phase != n) {
                     chan.noise_phase = n;
@@ -92,15 +92,12 @@ void Synth::mix(int16_t* buffer, int len) {
                     chan.noise = a / 128.0f - 1;
                 }
                 amp = chan.noise;
-//                if (chan.phase < speed) chan.phase = rand() * 2.0 / RAND_MAX - 1;
-//                amp = v.noise;
                 break;
             }
-
-            case 1: amp = chan.phase < chan.pulsewidth ? -1 : 1; break;
-            case 2: amp = chan.phase * 2 - 1; break;
-            case 3: amp = chan.phase < 0.5 ? 4 * chan.phase - 1 : -4 * (chan.phase - 0.5) + 1; break;
-            case 4: amp = -std::cos(chan.phase * 2 * (float) M_PI); break;
+            case Channel::W_PULSE:    amp = chan.phase < chan.pulsewidth ? -1 : 1; break;
+            case Channel::W_SAW:      amp = chan.phase * 2 - 1; break;
+            case Channel::W_TRIANGLE: amp = chan.phase < 0.5 ? 4 * chan.phase - 1 : -4 * (chan.phase - 0.5) + 1; break;
+            case Channel::W_SINE:     amp = -std::cos(chan.phase * 2 * (float) M_PI); break;
             default: break;
             }
 

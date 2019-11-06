@@ -173,12 +173,6 @@ void Parser::parse_track(Tune& tune, int nr) {
     for (;;) {
         skip_space();
 
-        // instrument
-        if (chr() == '$' || chr() == '{') {
-            parse_inst(inst);
-            continue;
-        }
-
         // octave
         if (chr() == 'o') {
             next_chr();
@@ -190,25 +184,23 @@ void Parser::parse_track(Tune& tune, int nr) {
             continue;
         }
 
-        // rest
-        if (chr() == 'r') {
-            next_chr();
-            if (isdigit(chr())) length = parse_uint();
-            track.events.push_back({ -1, length, -1 });
-            continue;
-        }
-
-        // note
-        int index = find("ccddeffggaab", chr());
+        // note or rest
+        int index = find("ccddeffggaabr", chr());
         if (index >= 0) {
             next_chr();
-            int note = index + 12 * octave;
-            while (chr() == '+' || chr() == '-') note += next_chr() == '+' ? 1 : -1;
+            int note = -1;
+            if (index < 12) {
+                note = index + 12 * octave;
+                while (chr() == '+' || chr() == '-') note += next_chr() == '+' ? 1 : -1;
+            }
             if (isdigit(chr())) length = parse_uint();
 
+            // instrument
+            if (chr() == '$' || chr() == '{') parse_inst(inst);
+
             int inst_nr = tune.insts.size();
-            auto it = std::find(tune.insts.begin(), tune.insts.begin(), inst);
-            if (it != tune.insts.begin()) {
+            auto it = std::find(tune.insts.begin(), tune.insts.end(), inst);
+            if (it != tune.insts.end()) {
                 inst_nr = it - tune.insts.begin();
             }
             else {
