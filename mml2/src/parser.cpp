@@ -200,12 +200,8 @@ void Parser::parse_track(Tune& tune, int nr) {
 
             int inst_nr = tune.insts.size();
             auto it = std::find(tune.insts.begin(), tune.insts.end(), inst);
-            if (it != tune.insts.end()) {
-                inst_nr = it - tune.insts.begin();
-            }
-            else {
-                tune.insts.push_back(inst);
-            }
+            if (it != tune.insts.end()) inst_nr = it - tune.insts.begin();
+            else tune.insts.push_back(inst);
 
             track.events.push_back({ note, length, inst_nr });
             continue;
@@ -228,13 +224,6 @@ void Parser::parse_tune(Tune& tune) {
                 printf("%d: error: env name '%s' already assigned\n", m_line, name.c_str());
                 exit(1);
             }
-
-            // print env
-            printf("@%s =", name.c_str());
-            int i = 0;
-            Env const& e = m_envs[name];
-            for (auto d : e.data) printf(" %s%s%g", i++ == e.loop ? "| " : "", "+" + !d.relative, d.value);
-            printf("\n");
         }
         else if (chr() == '$') {
             next_chr();
