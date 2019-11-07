@@ -207,6 +207,8 @@ void Parser::parse_tune(Tune& tune) {
             consume('=');
             skip_space();
             Inst inst;
+            // set defaults
+            inst.params[Inst::P_VOLUME] = Env{ { { false, 1 } }, 0 };
             parse_inst(inst);
             auto p = m_insts.insert({ name, std::move(inst) });
             if (!p.second) {

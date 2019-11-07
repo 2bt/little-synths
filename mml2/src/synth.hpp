@@ -37,9 +37,10 @@ struct Channel {
 
     // param cache
     enum Wave { W_NOISE, W_PULSE, W_SAW, W_TRIANGLE, W_SINE };
-    Wave   wave            = W_NOISE;
-    float  next_pulsewidth = 0;
-    float  pulsewidth      = 0;
+    Wave   wave;
+    float  pulsewidth;
+    float  next_pulsewidth;
+    float  panning[2];
 
     float  attack;
     float  sustain;

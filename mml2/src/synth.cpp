@@ -43,6 +43,11 @@ void Synth::tick() {
 
         float pw = chan.params[Inst::P_PULSEWIDTH].value();
         chan.next_pulsewidth = 0.5f + std::abs(pw - std::floor(pw) - 0.5f) * 0.97f;
+
+        float vol = clamp(chan.params[Inst::P_VOLUME].value());
+        float pan = clamp(chan.params[Inst::P_PANNING].value(), -1.0f, 1.0f) * 0.5;
+        chan.panning[0] = std::sqrt(0.5f - pan) * vol;
+        chan.panning[1] = std::sqrt(0.5f + pan) * vol;
     }
 }
 
@@ -101,24 +106,10 @@ void Synth::mix(int16_t* buffer, int len) {
             default: break;
             }
 
-            /*
-            amp *= v.level * v.inst.vol * 0.1;
-            Frame buf = {
-                amp * sqrtf(0.5 - v.inst.pan * 0.05),
-                amp * sqrtf(0.5 + v.inst.pan * 0.05)
-            };
-            out[0] += buf[0];
-            out[1] += buf[1];
-            if (v.inst.echo > 0) {
-                m_echo.add({
-                    buf[0] * v.inst.echo * 0.1f,
-                    buf[1] * v.inst.echo * 0.1f
-                });
-            }
-            */
+            //amp *= v.level;
 
-            f[0] += amp;
-            f[1] += amp;
+            f[0] += amp * chan.panning[0];
+            f[1] += amp * chan.panning[1];
         }
 
         *buffer++ = clamp<int>(f[0] * 7000, -32768, 32767);
