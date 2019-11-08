@@ -17,11 +17,23 @@ void Synth::tick() {
 
             while (chan.wait == 0) {
                 Track::Event e = { -1, 1, -1 };
-                if (chan.pos >= (int) track.events.size()) chan.pos = 0;
+
+                // XXX: loop for ever
+                if (chan.pos >= (int) track.events.size()) {
+                    chan.pos = 0;
+                    ++chan.loop_count;
+                }
+
                 if (chan.pos < (int) track.events.size()) e = track.events[chan.pos++];
 
                 chan.wait = e.length;
-                chan.note = e.note;
+                if (e.note != -1) {
+                    chan.note = e.note;
+                    chan.state = Channel::S_ATTACK;
+                }
+                else {
+                    chan.state = Channel::S_RELEASE;
+                }
 
                 if (e.inst_nr >= 0) chan.inst = &m_tune.insts[e.inst_nr];
                 if (chan.inst) {
@@ -38,7 +50,7 @@ void Synth::tick() {
 
     for (Channel& chan : m_channels) {
         for (Param& p : chan.params) p.tick();
-        // param cache
+
         chan.wave = (Channel::Wave) chan.params[Inst::P_WAVE].value();
 
         float pw = chan.params[Inst::P_PULSEWIDTH].value();
@@ -48,15 +60,23 @@ void Synth::tick() {
         float pan = clamp(chan.params[Inst::P_PANNING].value(), -1.0f, 1.0f) * 0.5;
         chan.panning[0] = std::sqrt(0.5f - pan) * vol;
         chan.panning[1] = std::sqrt(0.5f + pan) * vol;
+
+//        chan.attack  = std::pow(0.5f, chan.params[Inst::P_ATTACK].value());
+//        chan.decay   = std::pow(0.5f, chan.params[Inst::P_DECAY].value());
+//        chan.sustain = clamp(chan.params[Inst::P_SUSTAIN].value());
+//        chan.release = std::pow(0.5f, chan.params[Inst::P_RELEASE].value());
+
+        chan.attack  = std::max(0.0f, chan.params[Inst::P_ATTACK].value()) * 1000 / MIXRATE;
+        chan.decay   = std::max(0.0f, chan.params[Inst::P_DECAY].value()) * 1000 / MIXRATE;
+        chan.release = std::max(0.0f, chan.params[Inst::P_RELEASE].value()) * 1000 / MIXRATE;
+        chan.sustain = clamp(chan.params[Inst::P_SUSTAIN].value());
     }
 }
 
 
 bool Synth::done() const {
     for (int i = 0; i < CHANNEL_COUNT; ++i) {
-        Channel const& chan = m_channels[i];
-        Track const& track = m_tune.tracks[i];
-        if (chan.pos < (int) track.events.size() || chan.wait > 0) return false;
+        if (m_channels[i].loop_count == 0) return false;
     }
     return true;
 }
@@ -70,14 +90,39 @@ void Synth::mix(int16_t* buffer, int len) {
         float f[2] = { 0, 0 };
 
         for (Channel& chan : m_channels) {
-            if (chan.note == -1) continue;
 
+            // adsr
+            switch (chan.state) {
+            case Channel::S_ATTACK:
+                chan.level += chan.attack;
+                if (chan.level >= 1) {
+                    chan.level = 1;
+                    chan.state = Channel::S_DECAY;
+                }
+                break;
+            case Channel::S_DECAY:
+                chan.level -= chan.decay;
+                if (chan.level <= chan.sustain) {
+                    chan.level = chan.sustain;
+                    chan.state = Channel::S_SUSTAIN;
+                }
+                break;
+            case Channel::S_SUSTAIN:
+                break;
+            default:
+                chan.level -= chan.release;
+                if (chan.level < 0) chan.level = 0;
+                break;
+            }
+
+            // osc
             float pitch = chan.note - 57 + chan.params[Inst::P_PITCH].value();
             float speed = std::exp2(pitch / 12.0f) * 440 / MIXRATE;
             chan.phase += speed;
             chan.phase -= (int) chan.phase;
             if (chan.phase < speed) chan.pulsewidth = chan.next_pulsewidth;
 
+            // wave
             float amp = 0;
             switch (chan.wave) {
             case Channel::W_NOISE: {
@@ -106,8 +151,7 @@ void Synth::mix(int16_t* buffer, int len) {
             default: break;
             }
 
-            //amp *= v.level;
-
+            amp *= chan.level;
             f[0] += amp * chan.panning[0];
             f[1] += amp * chan.panning[1];
         }

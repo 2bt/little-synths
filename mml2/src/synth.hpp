@@ -27,9 +27,10 @@ private:
 
 
 struct Channel {
-    int         pos  = 0;
-    int         wait = 0;
-    int         note = -1;
+    int         loop_count;
+    int         pos;
+    int         wait;
+    int         note;
     Inst const* inst;
 
     // params
@@ -49,12 +50,12 @@ struct Channel {
 
 
     // voice stuff
-    enum State { S_OFF, S_HOLD, S_ATTACK };
+    enum State { S_RELEASE, S_ATTACK, S_DECAY, S_SUSTAIN };
     float    noise;
     uint32_t shift = 0x7ffff8;
     int      noise_phase;
     float    phase;
-    State    state = S_OFF;
+    State    state;
     float    level;
     int      length;
 };
