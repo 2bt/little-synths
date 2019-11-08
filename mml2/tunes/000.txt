@@ -2,11 +2,7 @@ $bass = {
     pulsewidth = 0.2 | +0.01
     wave       = 1
     panning    = 0.2
-
-    attack  = 7
-    decay   = 1000
-    sustain = 0.9
-    release = 12
+    sustain    = 0.9
 }
 
 $kick = $bass{
@@ -21,10 +17,10 @@ $beep = {
     pulsewidth = 0.05 | +-0.005
     panning    = -0.1
 
-    attack  = 10000
-    decay   = 10000
-    sustain = 0.1
-    release = 1000
+    attack     = 10
+    decay      = 200
+    sustain    = 0.2
+    release    = 100
 }
 
 0: o1g+4$kick>g+2$bass<g+rrrg+4$kick>g+2$bass<g+rrg+>g+<g+

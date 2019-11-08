@@ -50,7 +50,7 @@ struct Channel {
 
 
     // voice stuff
-    enum State { S_RELEASE, S_ATTACK, S_DECAY, S_SUSTAIN };
+    enum State { S_RELEASE, S_ATTACK, S_HOLD };
     float    noise;
     uint32_t shift = 0x7ffff8;
     int      noise_phase;

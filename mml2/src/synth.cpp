@@ -61,14 +61,9 @@ void Synth::tick() {
         chan.panning[0] = std::sqrt(0.5f - pan) * vol;
         chan.panning[1] = std::sqrt(0.5f + pan) * vol;
 
-//        chan.attack  = std::pow(0.5f, chan.params[Inst::P_ATTACK].value());
-//        chan.decay   = std::pow(0.5f, chan.params[Inst::P_DECAY].value());
-//        chan.sustain = clamp(chan.params[Inst::P_SUSTAIN].value());
-//        chan.release = std::pow(0.5f, chan.params[Inst::P_RELEASE].value());
-
-        chan.attack  = std::max(0.0f, chan.params[Inst::P_ATTACK].value()) * 1000 / MIXRATE;
-        chan.decay   = std::max(0.0f, chan.params[Inst::P_DECAY].value()) * 1000 / MIXRATE;
-        chan.release = std::max(0.0f, chan.params[Inst::P_RELEASE].value()) * 1000 / MIXRATE;
+        chan.attack  = 1.0f / std::max(0.0f, chan.params[Inst::P_ATTACK].value() * 0.001f * MIXRATE);
+        chan.decay   = 1.0f / std::max(0.0f, chan.params[Inst::P_DECAY].value() *  0.001f * MIXRATE);
+        chan.release = 1.0f / std::max(0.0f, chan.params[Inst::P_RELEASE].value() * 0.001f * MIXRATE);
         chan.sustain = clamp(chan.params[Inst::P_SUSTAIN].value());
     }
 }
@@ -97,17 +92,11 @@ void Synth::mix(int16_t* buffer, int len) {
                 chan.level += chan.attack;
                 if (chan.level >= 1) {
                     chan.level = 1;
-                    chan.state = Channel::S_DECAY;
+                    chan.state = Channel::S_HOLD;
                 }
                 break;
-            case Channel::S_DECAY:
-                chan.level -= chan.decay;
-                if (chan.level <= chan.sustain) {
-                    chan.level = chan.sustain;
-                    chan.state = Channel::S_SUSTAIN;
-                }
-                break;
-            case Channel::S_SUSTAIN:
+            case Channel::S_HOLD:
+                chan.level = clamp(chan.sustain, chan.level - chan.decay, chan.level + chan.decay);
                 break;
             default:
                 chan.level -= chan.release;
