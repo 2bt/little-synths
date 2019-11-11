@@ -43,6 +43,7 @@ struct Inst {
 
 struct Track {
     struct Event {
+        int wait;
         int note;
         int length;
         int inst_nr;

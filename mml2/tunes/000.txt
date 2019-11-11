@@ -23,7 +23,7 @@ $beep = {
     release    = 100
 }
 
-0: o1g+4$kick>g+2$bass<g+rrrg+4$kick>g+2$bass<g+rrg+>g+<g+
+0: l1o1g+4$kick>g+2$bass<g+rrrg+4$kick>g+2$bass<g+rrg+>g+<g+
 0: o1g4$kick>g2$bass<gr>g4c$kick>c2$bass<crr>c<<a+>a+
 
 1: g+8$beep{pitch=|0 0 7 7} g+g+g+>d{pitch=|0 0 5 5}dd+{pitch=|0 0 9 9}d+

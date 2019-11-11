@@ -154,12 +154,19 @@ void Parser::parse_inst(Inst& inst) {
 void Parser::parse_track(Tune& tune, int nr) {
     Track& track = tune.tracks[nr];
     int   octave = 4;
-    int   length = 4;
+    int   wait   = 4;
+    int   length = 0;
     Inst  inst;
 
     for (;;) {
         skip_space();
 
+        // length
+        if (chr() == 'l') {
+            next_chr();
+            length = parse_uint();
+            continue;
+        }
         // octave
         if (chr() == 'o') {
             next_chr();
@@ -180,7 +187,7 @@ void Parser::parse_track(Tune& tune, int nr) {
                 note = index + 12 * octave;
                 while (chr() == '+' || chr() == '-') note += next_chr() == '+' ? 1 : -1;
             }
-            if (isdigit(chr())) length = parse_uint();
+            if (isdigit(chr())) wait = parse_uint();
 
             // instrument
             if (chr() == '$' || chr() == '{') parse_inst(inst);
@@ -190,7 +197,7 @@ void Parser::parse_track(Tune& tune, int nr) {
             if (it != tune.insts.end()) inst_nr = it - tune.insts.begin();
             else tune.insts.push_back(inst);
 
-            track.events.push_back({ note, length, inst_nr });
+            track.events.push_back({ wait, note, length > 0 ? length : wait, inst_nr });
             continue;
         }
         return;

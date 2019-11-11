@@ -15,6 +15,12 @@ void Synth::tick() {
             Channel& chan = m_channels[i];
             Track const& track = m_tune.tracks[i];
 
+            if (chan.length > 0) {
+                if (--chan.length == 0) {
+                    chan.state = Channel::S_RELEASE;
+                }
+            }
+
             while (chan.wait == 0) {
                 Track::Event e = { -1, 1, -1 };
 
@@ -26,7 +32,8 @@ void Synth::tick() {
 
                 if (chan.pos < (int) track.events.size()) e = track.events[chan.pos++];
 
-                chan.wait = e.length;
+                chan.wait   = e.wait;
+                chan.length = e.length;
                 if (e.note != -1) {
                     chan.note = e.note;
                     chan.state = Channel::S_ATTACK;
