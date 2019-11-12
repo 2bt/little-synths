@@ -31,7 +31,7 @@ struct Channel {
     int         pos;
     int         wait;
     int         note;
-    Inst const* inst;
+    int         kill;
 
     // params
     std::array<Param, Inst::PARAM_COUNT> params;

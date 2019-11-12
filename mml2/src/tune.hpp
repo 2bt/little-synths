@@ -8,7 +8,7 @@
 enum {
     MIXRATE       = 44100,
     FRAME_LENGTH  = MIXRATE / 60,
-    CHANNEL_COUNT = 2,
+    CHANNEL_COUNT = 4,
 };
 
 

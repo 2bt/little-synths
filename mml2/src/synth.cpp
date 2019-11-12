@@ -8,6 +8,7 @@ T clamp(T const& v, T const& min=0, T const& max=1) { return std::max(min, std::
 
 
 void Synth::tick() {
+    enum { FRAMES_PER_ROW = 6 };
 
     // new row
     if (m_frame == 0) {
@@ -22,15 +23,15 @@ void Synth::tick() {
             }
 
             while (chan.wait == 0) {
-                Track::Event e = { -1, 1, -1 };
-
-                // XXX: loop for ever
+                // loop for ever
                 if (chan.pos >= (int) track.events.size()) {
                     chan.pos = 0;
                     ++chan.loop_count;
                 }
 
+                Track::Event e = { 1, -1, -1, -1 };
                 if (chan.pos < (int) track.events.size()) e = track.events[chan.pos++];
+
 
                 chan.wait   = e.wait;
                 chan.length = e.length;
@@ -42,17 +43,26 @@ void Synth::tick() {
                     chan.state = Channel::S_RELEASE;
                 }
 
-                if (e.inst_nr >= 0) chan.inst = &m_tune.insts[e.inst_nr];
-                if (chan.inst) {
+                if (e.inst_nr >= 0 && e.note >= 0) {
+                    Inst const& inst = m_tune.insts[e.inst_nr];
                     for (int i = 0; i < Inst::PARAM_COUNT; ++i) {
-                        chan.params[i].set(&chan.inst->params[i]);
+                        chan.params[i].set(&inst.params[i]);
                     }
                 }
             }
             if (chan.wait > 0) --chan.wait;
+
+
+            if (chan.wait == 0 && !track.events.empty() && track.events[chan.pos % track.events.size()].note != -1) {
+                chan.kill = FRAMES_PER_ROW - 2;
+            }
+            else {
+                chan.kill = FRAMES_PER_ROW;
+            }
+
+
         }
     }
-    enum { FRAMES_PER_ROW = 6 };
     if (++m_frame >= FRAMES_PER_ROW) m_frame = 0;
 
     for (Channel& chan : m_channels) {
@@ -72,6 +82,13 @@ void Synth::tick() {
         chan.decay   = 1.0f / std::max(0.0f, chan.params[Inst::P_DECAY].value() *  0.001f * MIXRATE);
         chan.release = 1.0f / std::max(0.0f, chan.params[Inst::P_RELEASE].value() * 0.001f * MIXRATE);
         chan.sustain = clamp(chan.params[Inst::P_SUSTAIN].value());
+
+        if (m_frame >= chan.kill) {
+            chan.state   = Channel::S_RELEASE;
+            chan.release = 1.0f / (0.006f * MIXRATE);
+            chan.sustain = 1.0f / (0.006f * MIXRATE);
+        }
+
     }
 }
 
@@ -105,7 +122,7 @@ void Synth::mix(int16_t* buffer, int len) {
             case Channel::S_HOLD:
                 chan.level = clamp(chan.sustain, chan.level - chan.decay, chan.level + chan.decay);
                 break;
-            default:
+            case Channel::S_RELEASE:
                 chan.level -= chan.release;
                 if (chan.level < 0) chan.level = 0;
                 break;
