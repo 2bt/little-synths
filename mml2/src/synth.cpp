@@ -13,8 +13,9 @@ void Synth::tick() {
     // new row
     if (m_frame == 0) {
         for (int i = 0; i < CHANNEL_COUNT; ++i) {
-            Channel& chan = m_channels[i];
             Track const& track = m_tune.tracks[i];
+            if (track.events.empty()) continue;
+            Channel& chan = m_channels[i];
 
             if (chan.length > 0) {
                 if (--chan.length == 0) {
@@ -23,15 +24,8 @@ void Synth::tick() {
             }
 
             while (chan.wait == 0) {
-                // loop for ever
-                if (chan.pos >= (int) track.events.size()) {
-                    chan.pos = 0;
-                    ++chan.loop_count;
-                }
-
-                Track::Event e = { 1, -1, -1, -1 };
-                if (chan.pos < (int) track.events.size()) e = track.events[chan.pos++];
-
+                Track::Event const& e = track.events[chan.pos];
+                if (++chan.pos >= (int) track.events.size()) chan.pos = 0;
 
                 chan.wait   = e.wait;
                 chan.length = e.length;
@@ -53,17 +47,14 @@ void Synth::tick() {
             if (chan.wait > 0) --chan.wait;
 
 
-            if (chan.wait == 0 && !track.events.empty() && track.events[chan.pos % track.events.size()].note != -1) {
+            if (chan.wait == 0 && !track.events.empty() && track.events[chan.pos].note != -1) {
                 chan.kill = FRAMES_PER_ROW - 2;
             }
             else {
                 chan.kill = FRAMES_PER_ROW;
             }
-
-
         }
     }
-    if (++m_frame >= FRAMES_PER_ROW) m_frame = 0;
 
     for (Channel& chan : m_channels) {
         for (Param& p : chan.params) p.tick();
@@ -78,18 +69,23 @@ void Synth::tick() {
         chan.panning[0] = std::sqrt(0.5f - pan) * vol;
         chan.panning[1] = std::sqrt(0.5f + pan) * vol;
 
-        chan.attack  = 1.0f / std::max(0.0f, chan.params[Inst::P_ATTACK].value() * 0.001f * MIXRATE);
-        chan.decay   = 1.0f / std::max(0.0f, chan.params[Inst::P_DECAY].value() *  0.001f * MIXRATE);
+        chan.attack  = 1.0f / std::max(0.0f, chan.params[Inst::P_ATTACK ].value() * 0.001f * MIXRATE);
+        chan.decay   = 1.0f / std::max(0.0f, chan.params[Inst::P_DECAY  ].value() * 0.001f * MIXRATE);
         chan.release = 1.0f / std::max(0.0f, chan.params[Inst::P_RELEASE].value() * 0.001f * MIXRATE);
         chan.sustain = clamp(chan.params[Inst::P_SUSTAIN].value());
 
         if (m_frame >= chan.kill) {
             chan.state   = Channel::S_RELEASE;
-            chan.release = 1.0f / (0.006f * MIXRATE);
-            chan.sustain = 1.0f / (0.006f * MIXRATE);
+            chan.release = 1.0f / (0.01f * MIXRATE);
+            chan.sustain = 1.0f / (0.01f * MIXRATE);
         }
 
+        if (chan.pos == 0 && chan.wait == 0 && m_frame == FRAMES_PER_ROW - 1) {
+            ++chan.loop_count;
+        }
     }
+
+    if (++m_frame >= FRAMES_PER_ROW) m_frame = 0;
 }
 
 

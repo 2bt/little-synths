@@ -2,7 +2,7 @@ $bass = {
     pulsewidth = 0.2 | +0.01
     wave       = 1
     panning    = 0.2
-    sustain    = 0.9
+    sustain    = 1
 }
 
 $kick = $bass{

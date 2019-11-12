@@ -217,8 +217,8 @@ void Parser::parse_tune(Tune& tune) {
 
             // set defaults
             inst.params[Inst::P_VOLUME]  = Env{ { { false,   1 } }, 0 };
-            inst.params[Inst::P_ATTACK]  = Env{ { { false,  10 } }, 0 };
-            inst.params[Inst::P_DECAY]   = Env{ { { false, 300 } }, 0 };
+            inst.params[Inst::P_ATTACK]  = Env{ { { false,   2 } }, 0 };
+            inst.params[Inst::P_DECAY]   = Env{ { { false, 200 } }, 0 };
             inst.params[Inst::P_RELEASE] = Env{ { { false, 100 } }, 0 };
             inst.params[Inst::P_SUSTAIN] = Env{ { { false, 0.7 } }, 0 };
 
