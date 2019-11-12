@@ -49,7 +49,7 @@ std::string Parser::parse_name() {
     }
     std::string name;
     do name += next_chr();
-    while (isalnum(chr()));
+    while (isalnum(chr()) || chr() == '_');
     return name;
 }
 
@@ -124,24 +124,26 @@ void Parser::parse_inst(Inst& inst) {
         consume('=');
         skip_space();
 
-        static const std::map<std::string, Inst::Param> name_map = {
-            { "attack",     Inst::P_ATTACK     },
-            { "decay",      Inst::P_DECAY      },
-            { "sustain",    Inst::P_SUSTAIN    },
-            { "release",    Inst::P_RELEASE    },
-            { "volume",     Inst::P_VOLUME     },
-            { "panning",    Inst::P_PANNING    },
-            { "wave",       Inst::P_WAVE       },
-            { "pulsewidth", Inst::P_PULSEWIDTH },
-            { "pitch",      Inst::P_PITCH      },
+        static const std::array<std::string, Inst::PARAM_COUNT> names = {
+            "attack",
+            "decay",
+            "sustain",
+            "release",
+            "volume",
+            "panning",
+            "wave",
+            "pulsewidth",
+            "pitch",
         };
-
-        auto it = name_map.find(name);
-        if (it == name_map.end()) {
+        int i;
+        for (i = 0; i < Inst::PARAM_COUNT; ++i) {
+            if (names[i].find(name) == 0)  break;
+        }
+        if (i == Inst::PARAM_COUNT) {
             printf("%d: error: invalid inst param '%s'\n", m_line, name.c_str());
             exit(1);
         }
-        inst.params[it->second] = parse_env();
+        inst.params[i] = parse_env();
 
         if (chr() == '}') break;
         if (chr() == '\n') next_chr();
@@ -221,7 +223,6 @@ void Parser::parse_tune(Tune& tune) {
             inst.params[Inst::P_DECAY]   = Env{ { { false, 200 } }, 0 };
             inst.params[Inst::P_RELEASE] = Env{ { { false, 100 } }, 0 };
             inst.params[Inst::P_SUSTAIN] = Env{ { { false, 0.7 } }, 0 };
-
 
             parse_inst(inst);
             auto p = m_insts.insert({ name, std::move(inst) });
