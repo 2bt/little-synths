@@ -134,6 +134,7 @@ void Parser::parse_inst(Inst& inst) {
             "wave",
             "pulsewidth",
             "pitch",
+            "break",
         };
         int i;
         for (i = 0; i < Inst::PARAM_COUNT; ++i) {

@@ -3,6 +3,7 @@ $bass = {
     wave       = 1
     panning    = 0.2
     sustain    = 1
+    break = 2
 }
 
 $kick = $bass{

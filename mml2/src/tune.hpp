@@ -34,8 +34,9 @@ struct Inst {
         P_PULSEWIDTH,
         P_PITCH,
 
+        P_BREAK,
         //...
-        PARAM_COUNT
+        PARAM_COUNT,
     };
     std::array<Env, PARAM_COUNT> params;
 };

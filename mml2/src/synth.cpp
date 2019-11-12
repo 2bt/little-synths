@@ -48,10 +48,10 @@ void Synth::tick() {
 
 
             if (chan.wait == 0 && !track.events.empty() && track.events[chan.pos].note != -1) {
-                chan.kill = FRAMES_PER_ROW - 2;
+                chan.break_frame = FRAMES_PER_ROW - chan.params[Inst::P_BREAK].value();
             }
             else {
-                chan.kill = FRAMES_PER_ROW;
+                chan.break_frame = FRAMES_PER_ROW;
             }
         }
     }
@@ -74,7 +74,7 @@ void Synth::tick() {
         chan.release = 1.0f / std::max(0.0f, chan.params[Inst::P_RELEASE].value() * 0.001f * MIXRATE);
         chan.sustain = clamp(chan.params[Inst::P_SUSTAIN].value());
 
-        if (m_frame >= chan.kill) {
+        if (m_frame >= chan.break_frame) {
             chan.state   = Channel::S_RELEASE;
             chan.release = 1.0f / (0.01f * MIXRATE);
             chan.sustain = 1.0f / (0.01f * MIXRATE);
