@@ -67,11 +67,40 @@ uint32_t Parser::parse_uint() {
 Env Parser::parse_env() {
     Env env;
     env.loop = -1;
+    std::vector<int> repeat;
     for (;;) {
+        skip_space();
+
+        if (chr() == '[') {
+            next_chr();
+            repeat.push_back(env.data.size());
+            continue;
+        }
+        if (chr() == ']') {
+            if (repeat.empty()) {
+                printf("%d: error: invalid env\n", m_line);
+                exit(1);
+            }
+            next_chr();
+            skip_space();
+            int n = parse_uint();
+            int x = repeat.back();
+            repeat.pop_back();
+            int y = env.data.size();
+            while (--n > 0) {
+                env.data.insert(env.data.end(), env.data.begin() + x, env.data.begin() + y);
+            }
+            continue;
+        }
+
         // loop point
         if (chr() == '|') {
             next_chr();
             skip_space();
+            if (env.loop != -1) {
+                printf("%d: error: invalid env: multiple loop points\n", m_line);
+                exit(1);
+            }
             env.loop = env.data.size();
         }
 
@@ -88,7 +117,6 @@ Env Parser::parse_env() {
             number += next_chr();
             while (isdigit(chr())) number += next_chr();
         }
-        skip_space();
 
         if (relative && number.empty()) {
             printf("%d: error: invalid env\n", m_line);
@@ -98,7 +126,12 @@ Env Parser::parse_env() {
 
         env.data.push_back({ relative, std::stof(number, nullptr) });
     }
+    skip_space();
     if (env.loop == -1) env.loop = env.data.size() - 1;
+    if (!repeat.empty()) {
+        printf("%d: error: invalid env\n", m_line);
+        exit(1);
+    }
     return env;
 }
 
@@ -122,7 +155,6 @@ void Parser::parse_inst(Inst& inst) {
         std::string name = parse_name();
         skip_space();
         consume('=');
-        skip_space();
 
         static const std::array<std::string, Inst::PARAM_COUNT> names = {
             "attack",
@@ -161,8 +193,32 @@ void Parser::parse_track(Tune& tune, int nr) {
     int   length = 0;
     Inst  inst;
 
+
+    std::vector<int> repeat;
     for (;;) {
         skip_space();
+
+        if (chr() == '[') {
+            next_chr();
+            repeat.push_back(track.events.size());
+            continue;
+        }
+        if (chr() == ']') {
+            if (repeat.empty()) {
+                printf("%d: error: invalid env\n", m_line);
+                exit(1);
+            }
+            next_chr();
+            skip_space();
+            int n = parse_uint();
+            int x = repeat.back();
+            repeat.pop_back();
+            int y = track.events.size();
+            while (--n > 0) {
+                track.events.insert(track.events.end(), track.events.begin() + x, track.events.begin() + y);
+            }
+            continue;
+        }
 
         // length
         if (chr() == 'l') {
