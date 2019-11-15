@@ -42,6 +42,8 @@ void Synth::tick() {
                     for (int i = 0; i < Inst::PARAM_COUNT; ++i) {
                         chan.params[i].set(&inst.params[i]);
                     }
+
+                    // TODO: global params
                 }
             }
             if (chan.wait > 0) --chan.wait;
@@ -69,6 +71,8 @@ void Synth::tick() {
         chan.panning[0] = std::sqrt(0.5f - pan) * vol;
         chan.panning[1] = std::sqrt(0.5f + pan) * vol;
 
+        chan.filter = clamp(chan.params[Inst::P_FILTER].value());
+
         chan.attack  = 1.0f / std::max(0.0f, chan.params[Inst::P_ATTACK ].value() * 0.001f * MIXRATE);
         chan.decay   = 1.0f / std::max(0.0f, chan.params[Inst::P_DECAY  ].value() * 0.001f * MIXRATE);
         chan.release = 1.0f / std::max(0.0f, chan.params[Inst::P_RELEASE].value() * 0.001f * MIXRATE);
@@ -84,6 +88,12 @@ void Synth::tick() {
             ++chan.loop_count;
         }
     }
+
+    int x = 100; // < 0x800
+    int r = 15;  // < 16
+    m_filter.freq = x * (21.5332031 / MIXRATE);
+    m_filter.reso = 1.2 - 0.04 * r;
+    m_filter.type = Filter::T_LOW;
 
     if (++m_frame >= FRAMES_PER_ROW) m_frame = 0;
 }
@@ -102,7 +112,7 @@ void Synth::mix(int16_t* buffer, int len) {
         if (m_sample == 0) tick();
         if (++m_sample >= FRAME_LENGTH) m_sample = 0;
 
-        float f[2] = { 0, 0 };
+        float f[2][2] = {};
 
         for (Channel& chan : m_channels) {
 
@@ -161,12 +171,34 @@ void Synth::mix(int16_t* buffer, int len) {
             }
 
             amp *= chan.level;
-            f[0] += amp * chan.panning[0];
-            f[1] += amp * chan.panning[1];
+            f[0][0] += amp * chan.panning[0] * (1 - chan.filter);
+            f[0][1] += amp * chan.panning[1] * (1 - chan.filter);
+            f[1][0] += amp * chan.panning[0] * chan.filter;
+            f[1][1] += amp * chan.panning[1] * chan.filter;
         }
 
-        *buffer++ = clamp<int>(f[0] * 7000, -32768, 32767);
-        *buffer++ = clamp<int>(f[1] * 7000, -32768, 32767);
+        m_filter.high[0] = f[1][0] - m_filter.band[0] * m_filter.reso - m_filter.low[0];
+        m_filter.high[1] = f[1][1] - m_filter.band[1] * m_filter.reso - m_filter.low[1];
+        m_filter.band[0] += m_filter.freq * m_filter.high[0];
+        m_filter.band[1] += m_filter.freq * m_filter.high[1];
+        m_filter.low[0]  += m_filter.freq * m_filter.band[0];
+        m_filter.low[1]  += m_filter.freq * m_filter.band[1];
+
+        if (m_filter.type | Filter::T_LOW) {
+            f[0][0] += m_filter.low[0];
+            f[0][1] += m_filter.low[1];
+        }
+        if (m_filter.type | Filter::T_BAND) {
+            f[0][0] += m_filter.band[0];
+            f[0][1] += m_filter.band[1];
+        }
+        if (m_filter.type | Filter::T_HIGH) {
+            f[0][0] += m_filter.high[0];
+            f[0][1] += m_filter.high[1];
+        }
+
+        *buffer++ = clamp<int>(f[0][0] * 7000, -32768, 32767);
+        *buffer++ = clamp<int>(f[0][1] * 7000, -32768, 32767);
     }
 }
 

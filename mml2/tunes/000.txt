@@ -7,6 +7,8 @@ $bass = {
 }
 
 $kick = $bass{
+    filter     = 1 | +-0.02
+
     pulsewidth = 0.5 0.5 0.5 | +0.01
     wave       = 0 1
     pitch      = 30 12 4 0
@@ -24,6 +26,8 @@ $beep = {
     release    = 100
 }
 
+
 0: o1g+4$kick>g+2$bass<g+rrrg+4$kick>g+2$bass<g+rrg+>g+<g+
 0: o1g4$kick>g2$bass<gr>g4c$kick>c2$bass<crr>c<<a+>a+
 1: g+8$beep{pi=|0 0 7 7} g+g+g+>d{pi=|0 0 5 5}dd+{pi=|0 0 9 9}d+
+

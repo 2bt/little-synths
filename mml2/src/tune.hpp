@@ -33,10 +33,16 @@ struct Inst {
         P_WAVE,
         P_PULSEWIDTH,
         P_PITCH,
-
         P_BREAK,
+        P_FILTER,
         //...
         PARAM_COUNT,
+
+        // global params
+        P_FILTER_TYPE,
+        P_FILTER_FREQ,
+        P_FILTER_RESO,
+        P_TEMPO,
     };
     std::array<Env, PARAM_COUNT> params;
 };

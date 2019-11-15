@@ -27,26 +27,27 @@ private:
 
 
 struct Channel {
-    int         loop_count;
-    int         pos;
-    int         wait;
-    int         note;
-    int         break_frame;
+    int loop_count;
+    int pos;
+    int wait;
+    int note;
+    int break_frame;
 
     // params
     std::array<Param, Inst::PARAM_COUNT> params;
 
     // param cache
     enum Wave { W_NOISE, W_PULSE, W_SAW, W_TRIANGLE, W_SINE };
-    Wave   wave;
-    float  pulsewidth;
-    float  next_pulsewidth;
-    float  panning[2];
+    Wave  wave;
+    float pulsewidth;
+    float next_pulsewidth;
+    float panning[2];
+    float filter;
 
-    float  attack;
-    float  sustain;
-    float  decay;
-    float  release;
+    float attack;
+    float sustain;
+    float decay;
+    float release;
 
 
     // voice stuff
@@ -61,9 +62,18 @@ struct Channel {
 };
 
 struct Filter {
-    float  high;
-    float  band;
-    float  low;
+    enum {
+        T_LOW  = 1,
+        T_BAND = 2,
+        T_HIGH = 4,
+    };
+    int   type;
+    float reso;
+    float freq;
+
+    float high[2];
+    float band[2];
+    float low[2];
 };
 
 

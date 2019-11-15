@@ -49,7 +49,7 @@ std::string Parser::parse_name() {
     }
     std::string name;
     do name += next_chr();
-    while (isalnum(chr()) || chr() == '_');
+    while (isalnum(chr()) || chr() == '-');
     return name;
 }
 
@@ -167,6 +167,7 @@ void Parser::parse_inst(Inst& inst) {
             "pulsewidth",
             "pitch",
             "break",
+            "filter",
         };
         int i;
         for (i = 0; i < Inst::PARAM_COUNT; ++i) {
@@ -234,6 +235,13 @@ void Parser::parse_track(Tune& tune, int nr) {
         }
         if (chr() == '>' || chr() == '<') {
             octave += next_chr() == '>' ? 1 : -1;
+            continue;
+        }
+
+
+        // instrument
+        if (chr() == '$' || chr() == '{') {
+            parse_inst(inst);
             continue;
         }
 
