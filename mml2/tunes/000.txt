@@ -4,22 +4,33 @@ $bass = {
     panning    = 0.2
     sustain    = 1
     break      = 2
+
+    filter      = 1
+    filter-type = 1
+    filter-reso = 15
+    filter-freq = 190 [+-10]10 +0
+
 }
 
 $kick = $bass{
-    filter     = 1 | +-0.02
 
     pulsewidth = 0.5 0.5 0.5 | +0.01
     wave       = 0 1
     pitch      = 30 12 4 0
     panning    = 0
+
+    filter      = 1
+    filter-type = 1
+    filter-reso = 15
+    filter-freq = 500 400 100 40 10 100
 }
 
 $beep = {
     wave       = 1
-    pulsewidth = 0.05 | +-0.005
-    panning    = -0.1
+    pulsewidth = | +-0.001
+    panning    = -0.2
 
+    break      = 2
     attack     = 10
     decay      = 200
     sustain    = 0.2
@@ -27,7 +38,7 @@ $beep = {
 }
 
 
-0: o1g+4$kick>g+2$bass<g+rrrg+4$kick>g+2$bass<g+rrg+>g+<g+
+0: o1 g+4$kick >g+2$bass<g+rrrg+4$kick>g+2$bass<g+rrg+>g+<g+
 0: o1g4$kick>g2$bass<gr>g4c$kick>c2$bass<crr>c<<a+>a+
 1: g+8$beep{pi=|0 0 7 7} g+g+g+>d{pi=|0 0 5 5}dd+{pi=|0 0 9 9}d+
 

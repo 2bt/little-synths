@@ -23,28 +23,30 @@ struct Env {
 
 
 struct Inst {
-    enum Param {
-        P_ATTACK,
-        P_DECAY,
-        P_SUSTAIN,
-        P_RELEASE,
-        P_VOLUME,
-        P_PANNING,
-        P_WAVE,
-        P_PULSEWIDTH,
-        P_PITCH,
-        P_BREAK,
-        P_FILTER,
+    enum {
+        L_ATTACK,
+        L_DECAY,
+        L_SUSTAIN,
+        L_RELEASE,
+        L_VOLUME,
+        L_PANNING,
+        L_WAVE,
+        L_PULSEWIDTH,
+        L_PITCH,
+        L_BREAK,
+        L_FILTER,
         //...
-        PARAM_COUNT,
+        PARAM_COUNT_LOCAL,
 
-        // global params
-        P_FILTER_TYPE,
-        P_FILTER_FREQ,
-        P_FILTER_RESO,
-        P_TEMPO,
+        G_FILTER_TYPE = 0,
+        G_FILTER_FREQ,
+        G_FILTER_RESO,
+        G_TEMPO,
+        // ...
+        PARAM_COUNT_GLOBAL,
+        PARAM_COUNT_TOTAL = PARAM_COUNT_LOCAL + PARAM_COUNT_GLOBAL,
     };
-    std::array<Env, PARAM_COUNT> params;
+    std::array<Env, PARAM_COUNT_TOTAL> envs;
 };
 
 

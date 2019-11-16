@@ -7,13 +7,10 @@ class Param {
 public:
     void set(Env const* e) {
         m_env = e;
-        m_pos = -1;
+        m_pos = 0;
     }
     float value() const { return m_val; }
     void tick() {
-        if (m_pos == -1) {
-            m_pos = 0;
-        }
         if (!m_env || m_env->data.empty()) return;
         if (m_env->data[m_pos].relative) m_val += m_env->data[m_pos].value;
         else                             m_val =  m_env->data[m_pos].value;
@@ -34,7 +31,7 @@ struct Channel {
     int break_frame;
 
     // params
-    std::array<Param, Inst::PARAM_COUNT> params;
+    std::array<Param, Inst::PARAM_COUNT_LOCAL> params;
 
     // param cache
     enum Wave { W_NOISE, W_PULSE, W_SAW, W_TRIANGLE, W_SINE };
@@ -88,11 +85,10 @@ private:
     int m_sample = 0;
     int m_frame  = 0;
 
-    // XXX: filter, echo, ...
-    Filter                             m_filter;
+    Filter                                      m_filter;
+    std::array<Param, Inst::PARAM_COUNT_GLOBAL> m_params;
 
-
-    Tune const&                        m_tune;
-    std::array<Channel, CHANNEL_COUNT> m_channels;
+    Tune const&                                 m_tune;
+    std::array<Channel, CHANNEL_COUNT>          m_channels;
 };
 

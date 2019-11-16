@@ -12,10 +12,10 @@ void Synth::tick() {
 
     // new row
     if (m_frame == 0) {
-        for (int i = 0; i < CHANNEL_COUNT; ++i) {
-            Track const& track = m_tune.tracks[i];
+        for (int n = 0; n < CHANNEL_COUNT; ++n) {
+            Track const& track = m_tune.tracks[n];
             if (track.events.empty()) continue;
-            Channel& chan = m_channels[i];
+            Channel& chan = m_channels[n];
 
             if (chan.length > 0) {
                 if (--chan.length == 0) {
@@ -39,18 +39,25 @@ void Synth::tick() {
 
                 if (e.inst_nr >= 0 && e.note >= 0) {
                     Inst const& inst = m_tune.insts[e.inst_nr];
-                    for (int i = 0; i < Inst::PARAM_COUNT; ++i) {
-                        chan.params[i].set(&inst.params[i]);
+
+                    // local params
+                    for (int i = 0; i < Inst::PARAM_COUNT_LOCAL; ++i) {
+                        chan.params[i].set(&inst.envs[i]);
                     }
 
-                    // TODO: global params
+                    // global params
+                    for (int i = 0; i < Inst::PARAM_COUNT_GLOBAL; ++i) {
+                        if (inst.envs[Inst::PARAM_COUNT_LOCAL + i].data.empty()) continue;
+                        m_params[i].set(&inst.envs[Inst::PARAM_COUNT_LOCAL + i]);
+                    }
+
                 }
             }
             if (chan.wait > 0) --chan.wait;
 
 
             if (chan.wait == 0 && !track.events.empty() && track.events[chan.pos].note != -1) {
-                chan.break_frame = FRAMES_PER_ROW - chan.params[Inst::P_BREAK].value();
+                chan.break_frame = FRAMES_PER_ROW - chan.params[Inst::L_BREAK].value();
             }
             else {
                 chan.break_frame = FRAMES_PER_ROW;
@@ -61,22 +68,22 @@ void Synth::tick() {
     for (Channel& chan : m_channels) {
         for (Param& p : chan.params) p.tick();
 
-        chan.wave = (Channel::Wave) chan.params[Inst::P_WAVE].value();
+        chan.wave = (Channel::Wave) chan.params[Inst::L_WAVE].value();
 
-        float pw = chan.params[Inst::P_PULSEWIDTH].value();
+        float pw = chan.params[Inst::L_PULSEWIDTH].value();
         chan.next_pulsewidth = 0.5f + std::abs(pw - std::floor(pw) - 0.5f) * 0.97f;
 
-        float vol = clamp(chan.params[Inst::P_VOLUME].value());
-        float pan = clamp(chan.params[Inst::P_PANNING].value(), -1.0f, 1.0f) * 0.5;
+        float vol = clamp(chan.params[Inst::L_VOLUME].value());
+        float pan = clamp(chan.params[Inst::L_PANNING].value(), -1.0f, 1.0f) * 0.5;
         chan.panning[0] = std::sqrt(0.5f - pan) * vol;
         chan.panning[1] = std::sqrt(0.5f + pan) * vol;
 
-        chan.filter = clamp(chan.params[Inst::P_FILTER].value());
+        chan.filter = clamp(chan.params[Inst::L_FILTER].value());
 
-        chan.attack  = 1.0f / std::max(0.0f, chan.params[Inst::P_ATTACK ].value() * 0.001f * MIXRATE);
-        chan.decay   = 1.0f / std::max(0.0f, chan.params[Inst::P_DECAY  ].value() * 0.001f * MIXRATE);
-        chan.release = 1.0f / std::max(0.0f, chan.params[Inst::P_RELEASE].value() * 0.001f * MIXRATE);
-        chan.sustain = clamp(chan.params[Inst::P_SUSTAIN].value());
+        chan.attack  = 1.0f / std::max(0.0f, chan.params[Inst::L_ATTACK ].value() * 0.001f * MIXRATE);
+        chan.decay   = 1.0f / std::max(0.0f, chan.params[Inst::L_DECAY  ].value() * 0.001f * MIXRATE);
+        chan.release = 1.0f / std::max(0.0f, chan.params[Inst::L_RELEASE].value() * 0.001f * MIXRATE);
+        chan.sustain = clamp(chan.params[Inst::L_SUSTAIN].value());
 
         if (m_frame >= chan.break_frame) {
             chan.state   = Channel::S_RELEASE;
@@ -89,11 +96,16 @@ void Synth::tick() {
         }
     }
 
-    int x = 100; // < 0x800
-    int r = 15;  // < 16
-    m_filter.freq = x * (21.5332031 / MIXRATE);
-    m_filter.reso = 1.2 - 0.04 * r;
-    m_filter.type = Filter::T_LOW;
+    m_params[Inst::G_FILTER_TYPE].tick();
+    m_params[Inst::G_FILTER_FREQ].tick();
+    m_params[Inst::G_FILTER_RESO].tick();
+
+    m_filter.type = clamp((int) m_params[Inst::G_FILTER_TYPE].value(), 0, 7);
+    float f = clamp(m_params[Inst::G_FILTER_FREQ].value(), 0.0f, float(0x7ff));
+    float r = clamp(m_params[Inst::G_FILTER_RESO].value(), 0.0f, 15.0f);
+
+    m_filter.freq = f * (21.5332031f / MIXRATE);
+    m_filter.reso = 1.2f - 0.04f * r;
 
     if (++m_frame >= FRAMES_PER_ROW) m_frame = 0;
 }
@@ -135,7 +147,7 @@ void Synth::mix(int16_t* buffer, int len) {
             }
 
             // osc
-            float pitch = chan.note - 57 + chan.params[Inst::P_PITCH].value();
+            float pitch = chan.note - 57 + chan.params[Inst::L_PITCH].value();
             float speed = std::exp2(pitch / 12.0f) * 440 / MIXRATE;
             chan.phase += speed;
             chan.phase -= (int) chan.phase;

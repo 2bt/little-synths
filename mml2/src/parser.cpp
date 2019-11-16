@@ -21,7 +21,7 @@ bool operator==(Env const& a, Env const& b) {
     return a.loop == b.loop && a.data == b.data;
 }
 bool operator==(Inst const& a, Inst const& b) {
-    return a.params == b.params;
+    return a.envs == b.envs;
 }
 
 
@@ -156,7 +156,7 @@ void Parser::parse_inst(Inst& inst) {
         skip_space();
         consume('=');
 
-        static const std::array<std::string, Inst::PARAM_COUNT> names = {
+        static const std::array<std::string, Inst::PARAM_COUNT_TOTAL> names = {
             "attack",
             "decay",
             "sustain",
@@ -168,16 +168,21 @@ void Parser::parse_inst(Inst& inst) {
             "pitch",
             "break",
             "filter",
+            // ---
+            "filter-type",
+            "filter-freq",
+            "filter-reso",
+            "tempo",
         };
         int i;
-        for (i = 0; i < Inst::PARAM_COUNT; ++i) {
+        for (i = 0; i < (int) names.size(); ++i) {
             if (names[i].find(name) == 0)  break;
         }
-        if (i == Inst::PARAM_COUNT) {
+        if (i == names.size()) {
             printf("%d: error: invalid inst param '%s'\n", m_line, name.c_str());
             exit(1);
         }
-        inst.params[i] = parse_env();
+        inst.envs[i] = parse_env();
 
         if (chr() == '}') break;
         if (chr() == '\n') next_chr();
@@ -283,11 +288,11 @@ void Parser::parse_tune(Tune& tune) {
             Inst inst;
 
             // set defaults
-            inst.params[Inst::P_VOLUME]  = Env{ { { false,   1 } }, 0 };
-            inst.params[Inst::P_ATTACK]  = Env{ { { false,   2 } }, 0 };
-            inst.params[Inst::P_DECAY]   = Env{ { { false, 200 } }, 0 };
-            inst.params[Inst::P_RELEASE] = Env{ { { false, 100 } }, 0 };
-            inst.params[Inst::P_SUSTAIN] = Env{ { { false, 0.7 } }, 0 };
+            inst.envs[Inst::L_VOLUME]  = Env{ { { false,   1 } }, 0 };
+            inst.envs[Inst::L_ATTACK]  = Env{ { { false,   2 } }, 0 };
+            inst.envs[Inst::L_DECAY]   = Env{ { { false, 200 } }, 0 };
+            inst.envs[Inst::L_RELEASE] = Env{ { { false, 100 } }, 0 };
+            inst.envs[Inst::L_SUSTAIN] = Env{ { { false, 0.7 } }, 0 };
 
             parse_inst(inst);
             auto p = m_insts.insert({ name, std::move(inst) });
