@@ -184,15 +184,15 @@ void Synth::mix(int16_t* buffer, int len) {
         m_filter.low[0]  += m_filter.freq * m_filter.band[0];
         m_filter.low[1]  += m_filter.freq * m_filter.band[1];
 
-        if (m_filter.type | Filter::T_LOW) {
+        if (m_filter.type & Filter::T_LOW) {
             f[0][0] += m_filter.low[0];
             f[0][1] += m_filter.low[1];
         }
-        if (m_filter.type | Filter::T_BAND) {
+        if (m_filter.type & Filter::T_BAND) {
             f[0][0] += m_filter.band[0];
             f[0][1] += m_filter.band[1];
         }
-        if (m_filter.type | Filter::T_HIGH) {
+        if (m_filter.type & Filter::T_HIGH) {
             f[0][0] += m_filter.high[0];
             f[0][1] += m_filter.high[1];
         }
