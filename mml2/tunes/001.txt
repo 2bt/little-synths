@@ -16,9 +16,31 @@ $p2 = $p{ pitch = 50 | 0 0 3 3 8 8 12 12 }
 $p3 = $p{ pitch = 50 | 0 0 5 5 9 9 12 12 }
 $p4 = $p{ pitch = 50 | 0 0 4 4 7 7 12 12 }
 
+$l1 = {
+    panning    = 0.2
+    wave       = 1
+    pulsewidth = 0.35 | +0.008
+    break      = 2
+
+    gate       = 1 1 0
+    volume     = 0.8
+    attack     = 2
+    sustain    = 1
+    release    = 200
+}
+$l2 = $l1{
+    panning    = -0.2
+    volume     = 0.4
+}
+
 
 0: < $p1 [ a4 a2 a4 a1{gate=1 0;volume=0.4} a a4$p1{gate=[1]15 0} ]3
 0: < $p2 a4 a2 a4 a1{gate=1 0;volume=0.4} a2 a1$p2 a2{gate=[1]6 0}
 0: < $p3 g4 g2 g4 g1{gate=1 0;volume=0.4} g g4$p3{gate=[1]15 0}
 0: < $p4{gate=[1]6 0} g3 g g2 g g1 g2 a1$p1{gate=[1]6 0} a2
 
+
+1: [ d2$l1{pitch=-2 -2 0} <g1$l2> d2$l1 <g1$l2> d1$l1 <g1$l2> d2$l1 <g1$l2> d2$l1 <g1$l2> c1$l1 <a1$l2> ]2
+1: [ d2$l1{pitch=-2 -2 0} <g1$l2> d2$l1 <g1$l2 a2$l1> d2$l1 <g1$l2> d2$l1 <g1$l2> c1$l1 <a1$l2> ]2
+1: e2$l1{pitch=-2 -2 0} <g1$l2> e2$l1 <g1$l2 a2$l1> e2$l1 <g1$l2> e2$l1 <g1$l2> c1$l1 <a1$l2>
+1: d2$l1{pitch=-2 -2 0} d$l2 d{vol=0.2} d{vol=0.1} d{vol=0.05} d3{vol=0.02} <g1$l2> c1$l1 <a1$l2>
