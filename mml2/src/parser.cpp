@@ -157,6 +157,7 @@ void Parser::parse_inst(Inst& inst) {
         consume('=');
 
         static const std::array<std::string, Inst::PARAM_COUNT_TOTAL> names = {
+            "gate",
             "attack",
             "decay",
             "sustain",
@@ -288,6 +289,7 @@ void Parser::parse_tune(Tune& tune) {
             Inst inst;
 
             // set defaults
+            inst.envs[Inst::L_GATE]    = Env{ { { false,   1 } }, 0 };
             inst.envs[Inst::L_VOLUME]  = Env{ { { false,   1 } }, 0 };
             inst.envs[Inst::L_ATTACK]  = Env{ { { false,   2 } }, 0 };
             inst.envs[Inst::L_DECAY]   = Env{ { { false, 200 } }, 0 };

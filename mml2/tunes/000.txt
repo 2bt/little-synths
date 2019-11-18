@@ -8,7 +8,7 @@ $bass = {
     filter      = 1
     filter-type = 1
     filter-reso = 15
-    filter-freq = 190 [+-10]10 +0
+    filter-freq = 10
 
 }
 
@@ -22,7 +22,7 @@ $kick = $bass{
     filter      = 1
     filter-type = 1
     filter-reso = 15
-    filter-freq = 500 400 100 40 10 100
+    filter-freq = 50 20 5 2 0.5 5
 }
 
 $beep = {

@@ -57,7 +57,7 @@ void Synth::tick() {
 
 
             if (chan.wait == 0 && !track.events.empty() && track.events[chan.pos].note != -1) {
-                chan.break_frame = FRAMES_PER_ROW - chan.params[Inst::L_BREAK].value();
+                chan.break_frame = FRAMES_PER_ROW - (int) chan.params[Inst::L_BREAK].value();
             }
             else {
                 chan.break_frame = FRAMES_PER_ROW;
@@ -68,9 +68,11 @@ void Synth::tick() {
     for (Channel& chan : m_channels) {
         for (Param& p : chan.params) p.tick();
 
-        chan.wave = (Channel::Wave) chan.params[Inst::L_WAVE].value();
+        float pitch = chan.note - 57 + chan.params[Inst::L_PITCH].value();
+        chan.speed = std::exp2(pitch / 12.0f) * 440 / MIXRATE;
 
-        float pw = chan.params[Inst::L_PULSEWIDTH].value();
+        chan.wave = (Channel::Wave) chan.params[Inst::L_WAVE].value();
+        float pw  = chan.params[Inst::L_PULSEWIDTH].value();
         chan.next_pulsewidth = 0.5f + std::abs(pw - std::floor(pw) - 0.5f) * 0.97f;
 
         float vol = clamp(chan.params[Inst::L_VOLUME].value());
@@ -85,12 +87,13 @@ void Synth::tick() {
         chan.release = 1.0f / std::max(0.0f, chan.params[Inst::L_RELEASE].value() * 0.001f * MIXRATE);
         chan.sustain = clamp(chan.params[Inst::L_SUSTAIN].value());
 
+        if (chan.params[Inst::L_GATE].value() == 0) chan.state = Channel::S_RELEASE;
+
         if (m_frame >= chan.break_frame) {
             chan.state   = Channel::S_RELEASE;
             chan.release = 1.0f / (0.01f * MIXRATE);
             chan.sustain = 1.0f / (0.01f * MIXRATE);
         }
-
         if (chan.pos == 0 && chan.wait == 0 && m_frame == FRAMES_PER_ROW - 1) {
             ++chan.loop_count;
         }
@@ -101,10 +104,10 @@ void Synth::tick() {
     m_params[Inst::G_FILTER_RESO].tick();
 
     m_filter.type = clamp((int) m_params[Inst::G_FILTER_TYPE].value(), 0, 7);
-    float f = clamp(m_params[Inst::G_FILTER_FREQ].value(), 0.0f, float(0x7ff));
+    float f = clamp(m_params[Inst::G_FILTER_FREQ].value(), 0.0f, 100.0f);
     float r = clamp(m_params[Inst::G_FILTER_RESO].value(), 0.0f, 15.0f);
 
-    m_filter.freq = f * (21.5332031f / MIXRATE);
+    m_filter.freq = f * (441.0f / MIXRATE);
     m_filter.reso = 1.2f - 0.04f * r;
 
     if (++m_frame >= FRAMES_PER_ROW) m_frame = 0;
@@ -147,11 +150,9 @@ void Synth::mix(int16_t* buffer, int len) {
             }
 
             // osc
-            float pitch = chan.note - 57 + chan.params[Inst::L_PITCH].value();
-            float speed = std::exp2(pitch / 12.0f) * 440 / MIXRATE;
-            chan.phase += speed;
+            chan.phase += chan.speed;
             chan.phase -= (int) chan.phase;
-            if (chan.phase < speed) chan.pulsewidth = chan.next_pulsewidth;
+            if (chan.phase < chan.speed) chan.pulsewidth = chan.next_pulsewidth;
 
             // wave
             float amp = 0;

@@ -7,7 +7,7 @@
 
 enum {
     MIXRATE       = 44100,
-    FRAME_LENGTH  = MIXRATE / 60,
+    FRAME_LENGTH  = MIXRATE / 50,
     CHANNEL_COUNT = 4,
 };
 
@@ -24,6 +24,7 @@ struct Env {
 
 struct Inst {
     enum {
+        L_GATE,
         L_ATTACK,
         L_DECAY,
         L_SUSTAIN,
