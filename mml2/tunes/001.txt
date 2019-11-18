@@ -1,6 +1,8 @@
 # oceans if time
 
 $p = {
+    filter=1
+
     wave       = 0 1
     pulsewidth = 0.35 | +0.008
     break      = 2
@@ -17,6 +19,8 @@ $p3 = $p{ pitch = 50 | 0 0 5 5 9 9 12 12 }
 $p4 = $p{ pitch = 50 | 0 0 4 4 7 7 12 12 }
 
 $l1 = {
+    filter=1
+
     panning    = 0.2
     wave       = 1
     pulsewidth = 0.35 | +0.008
@@ -33,14 +37,38 @@ $l2 = $l1{
     volume     = 0.4
 }
 
+$r = {
+    filter=1
+
+    wave       = 1
+    pulsewidth = 0.35 | +0.008
+    break      = 2
+
+    gate       = 1 1 0
+    volume     = 0.7
+    attack     = 2
+    sustain    = 1
+    release    = 500
+}
+
+
+3: {
+    volume = 0
+    filter-reso = 15
+    filter-type = 1
+    filter-freq = 1 | +0.07
+} c96
 
 0: < $p1 [ a4 a2 a4 a1{gate=1 0;volume=0.4} a a4$p1{gate=[1]15 0} ]3
 0: < $p2 a4 a2 a4 a1{gate=1 0;volume=0.4} a2 a1$p2 a2{gate=[1]6 0}
 0: < $p3 g4 g2 g4 g1{gate=1 0;volume=0.4} g g4$p3{gate=[1]15 0}
 0: < $p4{gate=[1]6 0} g3 g g2 g g1 g2 a1$p1{gate=[1]6 0} a2
 
-
 1: [ d2$l1{pitch=-2 -2 0} <g1$l2> d2$l1 <g1$l2> d1$l1 <g1$l2> d2$l1 <g1$l2> d2$l1 <g1$l2> c1$l1 <a1$l2> ]2
 1: [ d2$l1{pitch=-2 -2 0} <g1$l2> d2$l1 <g1$l2 a2$l1> d2$l1 <g1$l2> d2$l1 <g1$l2> c1$l1 <a1$l2> ]2
 1: e2$l1{pitch=-2 -2 0} <g1$l2> e2$l1 <g1$l2 a2$l1> e2$l1 <g1$l2> e2$l1 <g1$l2> c1$l1 <a1$l2>
 1: d2$l1{pitch=-2 -2 0} d$l2 d{vol=0.2} d{vol=0.1} d{vol=0.05} d3{vol=0.02} <g1$l2> c1$l1 <a1$l2>
+
+2: < $r [a6 a f4]2
+2: < $r a6 > d <f4 a6 >c4 c2 <f1{vol=0.4}>f2$r<f1>
+2: < $r g6 >e6 <g4 g12 r4
