@@ -1,30 +1,24 @@
 # oceans if time
 
 $p = {
-    filter=1
-
+    filter     = 1
     wave       = 0 1
     pulsewidth = 0.35 | +0.008
-    break      = 2
     volume     = 0.6
     attack     = 5
     release    = 160
     sustain    = 1
     gate       = 1 1 1 0
 }
-
 $p1 = $p{ pitch = 50 | 0 0 5 5 8 8 12 12 }
 $p2 = $p{ pitch = 50 | 0 0 3 3 8 8 12 12 }
 $p3 = $p{ pitch = 50 | 0 0 5 5 9 9 12 12 }
 $p4 = $p{ pitch = 50 | 0 0 4 4 7 7 12 12 }
 
 $l1 = {
-    filter=1
-
+    filter     = 1
     panning    = 0.2
-    wave       = 1
     pulsewidth = 0.35 | +0.008
-    break      = 2
 
     gate       = 1 1 0
     volume     = 0.8
@@ -38,11 +32,8 @@ $l2 = $l1{
 }
 
 $r = {
-    filter=1
-
-    wave       = 1
+    filter     = 1
     pulsewidth = 0.35 | +0.008
-    break      = 2
 
     gate       = 1 1 0
     volume     = 0.7
@@ -51,6 +42,14 @@ $r = {
     release    = 500
 }
 
+$b = {
+
+}
+
+
+
+
+# intro
 
 3: {
     volume = 0
@@ -71,4 +70,15 @@ $r = {
 
 2: < $r [a6 a f4]2
 2: < $r a6 > d <f4 a6 >c4 c2 <f1{vol=0.4}>f2$r<f1>
-2: < $r g6 >e6 <g4 g12 r4
+2: < $r g6 >e6 <g4 g12
+2: r4
+
+-
+
+# foobar
+
+*
+
+0: < $b c d e f g a b > c
+
+-

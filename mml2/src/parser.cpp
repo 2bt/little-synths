@@ -289,12 +289,15 @@ void Parser::parse_tune(Tune& tune) {
             Inst inst;
 
             // set defaults
-            inst.envs[Inst::L_GATE]    = Env{ { { false,   1 } }, 0 };
-            inst.envs[Inst::L_VOLUME]  = Env{ { { false,   1 } }, 0 };
-            inst.envs[Inst::L_ATTACK]  = Env{ { { false,   2 } }, 0 };
-            inst.envs[Inst::L_DECAY]   = Env{ { { false, 200 } }, 0 };
-            inst.envs[Inst::L_RELEASE] = Env{ { { false, 100 } }, 0 };
-            inst.envs[Inst::L_SUSTAIN] = Env{ { { false, 0.7 } }, 0 };
+            inst.envs[Inst::L_GATE      ] = Env{ { { false,   1 } }, 0 };
+            inst.envs[Inst::L_VOLUME    ] = Env{ { { false,   1 } }, 0 };
+            inst.envs[Inst::L_ATTACK    ] = Env{ { { false,   2 } }, 0 };
+            inst.envs[Inst::L_DECAY     ] = Env{ { { false, 200 } }, 0 };
+            inst.envs[Inst::L_RELEASE   ] = Env{ { { false, 100 } }, 0 };
+            inst.envs[Inst::L_SUSTAIN   ] = Env{ { { false, 0.7 } }, 0 };
+            inst.envs[Inst::L_BREAK     ] = Env{ { { false,   2 } }, 0 };
+            inst.envs[Inst::L_WAVE      ] = Env{ { { false,   1 } }, 0 };
+            inst.envs[Inst::L_PULSEWIDTH] = Env{ { { false, 0.5 } }, 0 };
 
             parse_inst(inst);
             auto p = m_insts.insert({ name, std::move(inst) });
@@ -313,6 +316,24 @@ void Parser::parse_tune(Tune& tune) {
             consume(':');
             skip_space();
             parse_track(tune, nr);
+        }
+        else if (chr() == '*') {
+            next_chr();
+            for (Track& track : tune.tracks) track.start = track.events.size();
+        }
+        else if (chr() == '-') {
+            next_chr();
+            std::array<int, CHANNEL_COUNT> lengths = {};
+            int max = 0;
+            for (int i = 0; i < CHANNEL_COUNT; ++i) {
+                Track const& track = tune.tracks[i];
+                for (Track::Event const& e : track.events) lengths[i] += e.wait;
+                max = std::max(max, lengths[i]);
+            }
+            for (int i = 0; i < CHANNEL_COUNT; ++i) {
+                Track& track = tune.tracks[i];
+                if (lengths[i] < max) track.events.push_back({ max - lengths[i], -1, 0, -1 });
+            }
         }
         else {
             printf("%d: error: invalid char '%c'\n", m_line, chr());

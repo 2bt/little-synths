@@ -5,6 +5,14 @@
 template <class T>
 T clamp(T const& v, T const& min=0, T const& max=1) { return std::max(min, std::min(max, v)); }
 
+void Synth::init() {
+    for (int n = 0; n < CHANNEL_COUNT; ++n) {
+        Track const& track = m_tune.tracks[n];
+        if (track.events.empty()) continue;
+        Channel& chan = m_channels[n];
+        chan.pos = track.start % track.events.size();
+    }
+}
 
 
 void Synth::tick() {
@@ -114,7 +122,7 @@ void Synth::tick() {
 }
 
 
-bool Synth::done() const {
+bool Synth::tune_done() const {
     for (int i = 0; i < CHANNEL_COUNT; ++i) {
         if (m_channels[i].loop_count == 0) return false;
     }

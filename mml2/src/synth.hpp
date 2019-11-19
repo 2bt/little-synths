@@ -27,6 +27,7 @@ struct Channel {
     int loop_count;
     int pos;
     int wait;
+    int length;
     int note;
     int break_frame;
 
@@ -55,7 +56,6 @@ struct Channel {
     float    phase;
     State    state;
     float    level;
-    int      length;
 };
 
 struct Filter {
@@ -77,8 +77,9 @@ struct Filter {
 class Synth {
 public:
     Synth(Tune const& tune) : m_tune(tune) {}
+    void init();
     void mix(int16_t* buffer, int len);
-    bool done() const;
+    bool tune_done() const;
 private:
     void tick();
 

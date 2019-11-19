@@ -59,6 +59,7 @@ struct Track {
         int inst_nr;
     };
     std::vector<Event> events;
+    int                start;
 };
 
 

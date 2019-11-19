@@ -36,11 +36,13 @@ int main(int argc, const char** argv) {
     Parser parser(content.c_str());
     parser.parse_tune(tune);
 
+    synth.init();
+
     if (write) {
         SF_INFO info = { 0, MIXRATE, 2, SF_FORMAT_WAV | SF_FORMAT_PCM_16 };
         SNDFILE* f = sf_open("out.wav", SFM_WRITE, &info);
         int16_t buffer[FRAME_LENGTH * 2];
-        while (!synth.done()) {
+        while (!synth.tune_done()) {
             synth.mix(buffer, FRAME_LENGTH);
             sf_writef_short(f, buffer, FRAME_LENGTH);
         }
