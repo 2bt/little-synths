@@ -6,6 +6,17 @@ template <class T>
 T clamp(T const& v, T const& min=0, T const& max=1) { return std::max(min, std::min(max, v)); }
 
 void Synth::init() {
+
+    static Env envs[] = {
+        { { { false,  1 } }, 0 },
+        { { { false, 15 } }, 0 },
+        { { { false, 10 } }, 0 },
+    };
+    m_params[Inst::G_FILTER_TYPE].set(&envs[0]);
+    m_params[Inst::G_FILTER_RESO].set(&envs[1]);
+    m_params[Inst::G_FILTER_FREQ].set(&envs[2]);
+
+
     for (int n = 0; n < CHANNEL_COUNT; ++n) {
         Track const& track = m_tune.tracks[n];
         if (track.events.empty()) continue;

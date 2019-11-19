@@ -11,6 +11,21 @@ int find(const char* str, char c) {
     return p ? p - str : -1;
 }
 
+void sync_tracks(Tune& tune) {
+    std::array<int, CHANNEL_COUNT> lengths = {};
+    int max = 0;
+    for (int i = 0; i < CHANNEL_COUNT; ++i) {
+        Track const& track = tune.tracks[i];
+        for (Track::Event const& e : track.events) lengths[i] += e.wait;
+        max = std::max(max, lengths[i]);
+    }
+    for (int i = 0; i < CHANNEL_COUNT; ++i) {
+        Track& track = tune.tracks[i];
+        if (lengths[i] < max) track.events.push_back({ max - lengths[i], -1, 0, -1 });
+    }
+}
+
+
 } // namespace
 
 
@@ -277,6 +292,8 @@ void Parser::parse_track(Tune& tune, int nr) {
     }
 }
 
+
+
 void Parser::parse_tune(Tune& tune) {
     skip_space(true);
     while (chr()) {
@@ -319,21 +336,13 @@ void Parser::parse_tune(Tune& tune) {
         }
         else if (chr() == '*') {
             next_chr();
+            skip_space();
             for (Track& track : tune.tracks) track.start = track.events.size();
         }
         else if (chr() == '-') {
             next_chr();
-            std::array<int, CHANNEL_COUNT> lengths = {};
-            int max = 0;
-            for (int i = 0; i < CHANNEL_COUNT; ++i) {
-                Track const& track = tune.tracks[i];
-                for (Track::Event const& e : track.events) lengths[i] += e.wait;
-                max = std::max(max, lengths[i]);
-            }
-            for (int i = 0; i < CHANNEL_COUNT; ++i) {
-                Track& track = tune.tracks[i];
-                if (lengths[i] < max) track.events.push_back({ max - lengths[i], -1, 0, -1 });
-            }
+            skip_space();
+            sync_tracks(tune);
         }
         else {
             printf("%d: error: invalid char '%c'\n", m_line, chr());
@@ -343,4 +352,5 @@ void Parser::parse_tune(Tune& tune) {
         else consume(';');
         skip_space(true);
     }
+    sync_tracks(tune);
 }

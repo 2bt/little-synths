@@ -42,21 +42,18 @@ $r = {
     release    = 500
 }
 
-$b = {
 
+# bass
+$b = {
+    filter-freq = 64 44.8 32 22.4 6.4 4.8 3 2.5
+    filter      = 1
+    release     = 1400
+    attack      = 2
 }
 
 
 
-
 # intro
-
-3: {
-    volume = 0
-    filter-reso = 15
-    filter-type = 1
-    filter-freq = 1 | +0.07
-} c96
 
 0: < $p1 [ a4 a2 a4 a1{gate=1 0;volume=0.4} a a4$p1{gate=[1]15 0} ]3
 0: < $p2 a4 a2 a4 a1{gate=1 0;volume=0.4} a2 a1$p2 a2{gate=[1]6 0}
@@ -73,12 +70,34 @@ $b = {
 2: < $r g6 >e6 <g4 g12
 2: r4
 
--
+3: {
+    volume = 0
+    filter-freq = 1 | +0.07
+    pulsewidth  = 0.5 | + 0.008
+} c96
 
-# foobar
+-
+# intro 2
 
 *
 
-0: < $b c d e f g a b > c
+0: << $b d12d2<a1>c <a+8a3a>c2
+0: << $b d12d2c1<a a+8a3>cf2
+0: << $b c12<e2e1c g1r7r8
 
 -
+# boom
+
+$snare = {
+    attack = 2
+    wave   = 0 1 1 0
+    pitch  = 47 -5 -9 47
+    gate   = 1 1 1 0
+#    filter = 1
+    sustain = 1
+    release = 200
+}
+
+*
+
+2: $snare [c r]4
