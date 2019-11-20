@@ -56,20 +56,15 @@ void Synth::tick() {
                     chan.state = Channel::S_RELEASE;
                 }
 
-                if (e.inst_nr >= 0 && e.note >= 0) {
+                if (e.inst_nr >= 0) {
                     Inst const& inst = m_tune.insts[e.inst_nr];
 
-                    // local params
-                    for (int i = 0; i < Inst::PARAM_COUNT_LOCAL; ++i) {
-                        chan.params[i].set(&inst.envs[i]);
+                    // params
+                    for (int i = 0; i < Inst::PARAM_COUNT_TOTAL; ++i) {
+                        if (inst.envs[i].data.empty()) continue;
+                        if (i < Inst::PARAM_COUNT_LOCAL) chan.params[i].set(&inst.envs[i]);
+                        else m_params[i - Inst::PARAM_COUNT_LOCAL].set(&inst.envs[i]);
                     }
-
-                    // global params
-                    for (int i = 0; i < Inst::PARAM_COUNT_GLOBAL; ++i) {
-                        if (inst.envs[Inst::PARAM_COUNT_LOCAL + i].data.empty()) continue;
-                        m_params[i].set(&inst.envs[Inst::PARAM_COUNT_LOCAL + i]);
-                    }
-
                 }
             }
             if (chan.wait > 0) --chan.wait;

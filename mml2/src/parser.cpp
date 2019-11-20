@@ -266,15 +266,20 @@ void Parser::parse_track(Tune& tune, int nr) {
             continue;
         }
 
-        // note or rest
-        int index = find("ccddeffggaabr", chr());
+        // rest
+        if (chr() == 'r') {
+            next_chr();
+            if (isdigit(chr())) wait = parse_uint();
+            track.events.push_back({ wait, -1, 0, -1 });
+            continue;
+        }
+
+        // note
+        int index = find("ccddeffggaab", chr());
         if (index >= 0) {
             next_chr();
-            int note = -1;
-            if (index < 12) {
-                note = index + 12 * octave;
-                while (chr() == '+' || chr() == '-') note += next_chr() == '+' ? 1 : -1;
-            }
+            int note = index + 12 * octave;
+            while (chr() == '+' || chr() == '-') note += next_chr() == '+' ? 1 : -1;
             if (isdigit(chr())) wait = parse_uint();
 
             // instrument
