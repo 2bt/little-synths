@@ -34,6 +34,7 @@ struct Inst {
         L_WAVE,
         L_PULSEWIDTH,
         L_PITCH,
+        L_ABSOLUTE_PITCH,
         L_BREAK,
         L_FILTER,
         //...

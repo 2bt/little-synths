@@ -50,17 +50,33 @@ $b = $_{
 }
 
 # drums
-$snare = $_{
-    filter      = 1
-    filter-freq = 10
 
-    attack = 2
-    wave   = 0 1 1 0
-    pitch  = 47 -5 -9 47
-    gate   = 1 1 1 0
-    sustain = 1
-    release = 200
+$snare = $_{
+    filter-type    = 3 6
+    filter-freq    = 40 1.6 1.2 1.6 4
+    filter         = 1
+    absolute-pitch = 1
+    pitch          = 47 -5 -9 47
+    wave           = 0 1 1 0
+    gate           = 1 1 1 0
+    sustain        = 1
+    attack         = 2
+    release        = 200
 }
+
+$kick = $_{
+    filter-type = 3 6
+    filter-freq = 40 1.6 1.2 1.6 4
+    filter      = 1
+
+    attack      = 2
+    wave        = 0 1 1 0
+    pitch       = 47 -5 -9 47
+    gate        = 1 1 1 0
+    sustain     = 1
+    release     = 200
+}
+
 
 
 # intro
@@ -98,8 +114,6 @@ $snare = $_{
 
 -
 # boom
-
-
 *
 
 2: $snare [c r]4

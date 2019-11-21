@@ -184,6 +184,7 @@ void Parser::parse_inst(Inst& inst) {
             "wave",
             "pulsewidth",
             "pitch",
+            "absolute-pitch",
             "break",
             "filter",
             // ---
@@ -303,16 +304,17 @@ void Parser::parse_tune(Tune& tune) {
     // default inst
     {
         Inst inst;
-        inst.envs[Inst::L_PITCH     ] = { { { false,   0 } }, 0 };
-        inst.envs[Inst::L_GATE      ] = { { { false,   1 } }, 0 };
-        inst.envs[Inst::L_VOLUME    ] = { { { false,   1 } }, 0 };
-        inst.envs[Inst::L_ATTACK    ] = { { { false,   2 } }, 0 };
-        inst.envs[Inst::L_DECAY     ] = { { { false, 200 } }, 0 };
-        inst.envs[Inst::L_RELEASE   ] = { { { false, 100 } }, 0 };
-        inst.envs[Inst::L_SUSTAIN   ] = { { { false, 0.7 } }, 0 };
-        inst.envs[Inst::L_BREAK     ] = { { { false,   2 } }, 0 };
-        inst.envs[Inst::L_WAVE      ] = { { { false,   1 } }, 0 };
-        inst.envs[Inst::L_PULSEWIDTH] = { { { false, 0.5 } }, 0 };
+        inst.envs[Inst::L_PITCH         ] = { { { false,   0 } }, 0 };
+        inst.envs[Inst::L_ABSOLUTE_PITCH] = { { { false,   0 } }, 0 };
+        inst.envs[Inst::L_GATE          ] = { { { false,   1 } }, 0 };
+        inst.envs[Inst::L_VOLUME        ] = { { { false,   1 } }, 0 };
+        inst.envs[Inst::L_ATTACK        ] = { { { false,   2 } }, 0 };
+        inst.envs[Inst::L_DECAY         ] = { { { false, 200 } }, 0 };
+        inst.envs[Inst::L_RELEASE       ] = { { { false, 100 } }, 0 };
+        inst.envs[Inst::L_SUSTAIN       ] = { { { false, 0.7 } }, 0 };
+        inst.envs[Inst::L_BREAK         ] = { { { false,   2 } }, 0 };
+        inst.envs[Inst::L_WAVE          ] = { { { false,   1 } }, 0 };
+        inst.envs[Inst::L_PULSEWIDTH    ] = { { { false, 0.5 } }, 0 };
         m_inst_map.insert({ "_", std::move(inst) });
     }
 

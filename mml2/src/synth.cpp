@@ -82,7 +82,8 @@ void Synth::tick() {
     for (Channel& chan : m_channels) {
         for (Param& p : chan.params) p.tick();
 
-        float pitch = chan.note - 57 + chan.params[Inst::L_PITCH].value();
+        int note = chan.params[Inst::L_ABSOLUTE_PITCH].value() == 0 ? chan.note : 48;
+        float pitch = note - 57 + chan.params[Inst::L_PITCH].value();
         chan.speed = std::exp2(pitch / 12.0f) * 440 / MIXRATE;
 
         chan.wave = (Channel::Wave) chan.params[Inst::L_WAVE].value();
