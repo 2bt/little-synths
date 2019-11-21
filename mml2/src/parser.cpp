@@ -58,13 +58,13 @@ void Parser::skip_space(bool newline) {
 }
 
 std::string Parser::parse_name() {
-    if (!isalpha(chr())) {
+    if (!isalpha(chr()) && chr() != '_') {
         printf("%d: error: read '%c' but expected letter\n", m_line, chr());
         exit(1);
     }
     std::string name;
     do name += next_chr();
-    while (isalnum(chr()) || chr() == '-');
+    while (isalnum(chr()) || chr() == '-' || chr() == '_');
     return name;
 }
 
@@ -155,12 +155,14 @@ void Parser::parse_inst(Inst& inst) {
         next_chr();
         std::string name = parse_name();
         skip_space();
-        auto it = m_insts.find(name);
-        if (it == m_insts.end()) {
+        auto it = m_inst_map.find(name);
+        if (it == m_inst_map.end()) {
             printf("%d: error: invalid inst reference '%s'\n", m_line, name.c_str());
             exit(1);
         }
-        inst = it->second;
+        for (int i = 0; i < (int) inst.envs.size(); ++i) {
+            if (!it->second.envs[i].data.empty()) inst.envs[i] = it->second.envs[i];
+        }
         if (chr() != '{') return;
     }
 
@@ -213,8 +215,7 @@ void Parser::parse_track(Tune& tune, int nr) {
     int   octave = 4;
     int   wait   = 4;
     int   length = 0;
-    Inst  inst;
-
+    Inst& inst   = m_insts[nr];
 
     std::vector<int> repeat;
     for (;;) {
@@ -259,7 +260,6 @@ void Parser::parse_track(Tune& tune, int nr) {
             continue;
         }
 
-
         // instrument
         if (chr() == '$' || chr() == '{') {
             parse_inst(inst);
@@ -298,8 +298,24 @@ void Parser::parse_track(Tune& tune, int nr) {
 }
 
 
-
 void Parser::parse_tune(Tune& tune) {
+
+    // default inst
+    {
+        Inst inst;
+        inst.envs[Inst::L_PITCH     ] = { { { false,   0 } }, 0 };
+        inst.envs[Inst::L_GATE      ] = { { { false,   1 } }, 0 };
+        inst.envs[Inst::L_VOLUME    ] = { { { false,   1 } }, 0 };
+        inst.envs[Inst::L_ATTACK    ] = { { { false,   2 } }, 0 };
+        inst.envs[Inst::L_DECAY     ] = { { { false, 200 } }, 0 };
+        inst.envs[Inst::L_RELEASE   ] = { { { false, 100 } }, 0 };
+        inst.envs[Inst::L_SUSTAIN   ] = { { { false, 0.7 } }, 0 };
+        inst.envs[Inst::L_BREAK     ] = { { { false,   2 } }, 0 };
+        inst.envs[Inst::L_WAVE      ] = { { { false,   1 } }, 0 };
+        inst.envs[Inst::L_PULSEWIDTH] = { { { false, 0.5 } }, 0 };
+        m_inst_map.insert({ "_", std::move(inst) });
+    }
+
     skip_space(true);
     while (chr()) {
         if (chr() == '$') {
@@ -310,19 +326,8 @@ void Parser::parse_tune(Tune& tune) {
             skip_space();
             Inst inst;
 
-            // set defaults
-            inst.envs[Inst::L_GATE      ] = Env{ { { false,   1 } }, 0 };
-            inst.envs[Inst::L_VOLUME    ] = Env{ { { false,   1 } }, 0 };
-            inst.envs[Inst::L_ATTACK    ] = Env{ { { false,   2 } }, 0 };
-            inst.envs[Inst::L_DECAY     ] = Env{ { { false, 200 } }, 0 };
-            inst.envs[Inst::L_RELEASE   ] = Env{ { { false, 100 } }, 0 };
-            inst.envs[Inst::L_SUSTAIN   ] = Env{ { { false, 0.7 } }, 0 };
-            inst.envs[Inst::L_BREAK     ] = Env{ { { false,   2 } }, 0 };
-            inst.envs[Inst::L_WAVE      ] = Env{ { { false,   1 } }, 0 };
-            inst.envs[Inst::L_PULSEWIDTH] = Env{ { { false, 0.5 } }, 0 };
-
             parse_inst(inst);
-            auto p = m_insts.insert({ name, std::move(inst) });
+            auto p = m_inst_map.insert({ name, std::move(inst) });
             if (!p.second) {
                 printf("%d: error: inst name '%s' already assigned\n", m_line, name.c_str());
                 exit(1);

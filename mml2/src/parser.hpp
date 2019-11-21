@@ -28,9 +28,10 @@ private:
     void        parse_inst(Inst& inst);
     void        parse_track(Tune& tune, int nr);
 
-    char const*                 m_pos;
-    int                         m_line = 1;
-    std::map<std::string, Inst> m_insts;
+    char const*                     m_pos;
+    int                             m_line = 1;
+    std::map<std::string, Inst>     m_inst_map;
+    std::array<Inst, CHANNEL_COUNT> m_insts;
 };
 
 
